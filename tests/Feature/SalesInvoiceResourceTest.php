@@ -45,7 +45,7 @@ it('creates a sales invoice', function (): void {
         ],
     ];
 
-    $mockClient = new MockClient([
+    MockClient::global([
         CreateSalesInvoiceRequest::class => MockResponse::make([
             'id' => 'invoice-id',
             'status' => 'queued',
@@ -53,18 +53,18 @@ it('creates a sales invoice', function (): void {
     ]);
 
     $connector = new ScradaConnector('key', 'secret', 'company');
-    $connector->withMockClient($mockClient);
-
     $resource = new SalesInvoiceResource($connector);
     $response = $resource->create($payload);
 
     expect($response)->toBeInstanceOf(CreateSalesInvoiceResponse::class)
         ->and($response->status)->toBe('queued')
         ->and($response->id)->toBe('invoice-id');
+
+    MockClient::destroyGlobal();
 });
 
 it('fetches the send status of a sales invoice', function (): void {
-    $mockClient = new MockClient([
+    MockClient::global([
         GetSalesInvoiceSendStatusRequest::class => MockResponse::make([
             'status' => 'delivered',
             'peppolSent' => true,
@@ -74,11 +74,11 @@ it('fetches the send status of a sales invoice', function (): void {
     ]);
 
     $connector = new ScradaConnector('key', 'secret', 'company');
-    $connector->withMockClient($mockClient);
-
     $resource = new SalesInvoiceResource($connector);
     $status = $resource->getSendStatus('invoice-id');
 
     expect($status->status)->toBe('delivered')
         ->and($status->peppolSent)->toBeTrue();
+
+    MockClient::destroyGlobal();
 });

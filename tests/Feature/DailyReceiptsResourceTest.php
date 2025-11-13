@@ -9,18 +9,18 @@ use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 
 it('fetches payment methods via Saloon mock', function (): void {
-    $mockClient = new MockClient([
+    MockClient::global([
         GetPaymentMethodsRequest::class => MockResponse::make([
             ['id' => 'pm-1', 'name' => 'Cash', 'type' => 'cash'],
         ]),
     ]);
 
     $connector = new ScradaConnector('key', 'secret', 'company');
-    $connector->withMockClient($mockClient);
-
     $resource = new DailyReceiptsResource($connector);
     $methods = $resource->getPaymentMethods('journal');
 
     expect($methods)->toHaveCount(1)
         ->and($methods[0]->name)->toBe('Cash');
+
+    MockClient::destroyGlobal();
 });

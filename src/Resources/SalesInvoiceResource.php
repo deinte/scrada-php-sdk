@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Deinte\ScradaSdk\Resources;
 
+use Closure;
 use Deinte\ScradaSdk\Dto\CreateSalesInvoiceData;
 use Deinte\ScradaSdk\Dto\CreateSalesInvoiceResponse;
 use Deinte\ScradaSdk\Dto\InvoiceLine;
 use Deinte\ScradaSdk\Dto\SalesInvoice;
 use Deinte\ScradaSdk\Dto\SendStatus;
+use Deinte\ScradaSdk\Exceptions\NotFoundException;
 use Deinte\ScradaSdk\Requests\SalesInvoices\CreateSalesInvoiceRequest;
 use Deinte\ScradaSdk\Requests\SalesInvoices\GetSalesInvoiceSendStatusRequest;
 use Deinte\ScradaSdk\Requests\SalesInvoices\GetSalesInvoiceUblRequest;
 use Deinte\ScradaSdk\Resources\Concerns\HandlesResponseErrors;
-use Closure;
-use Deinte\ScradaSdk\Exceptions\NotFoundException;
 use Saloon\Http\BaseResource;
 
 /**
@@ -27,7 +27,7 @@ final class SalesInvoiceResource extends BaseResource
     /**
      * Create a new sales invoice.
      *
-     * @param array<string, mixed>|CreateSalesInvoiceData|SalesInvoice $invoice
+     * @param  array<string, mixed>|CreateSalesInvoiceData|SalesInvoice  $invoice
      */
     public function create(array|CreateSalesInvoiceData|SalesInvoice $invoice): CreateSalesInvoiceResponse
     {
@@ -43,7 +43,7 @@ final class SalesInvoiceResource extends BaseResource
 
         $data = $response->json();
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return new CreateSalesInvoiceResponse('', 'draft');
         }
 
@@ -61,7 +61,7 @@ final class SalesInvoiceResource extends BaseResource
 
         $data = $response->json();
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return new SendStatus('', false, false, false);
         }
 
@@ -81,12 +81,12 @@ final class SalesInvoiceResource extends BaseResource
     }
 
     /**
-     * @param array<string, mixed> $invoice
+     * @param  array<string, mixed>  $invoice
      * @return array<string, mixed>
      */
     private function normalizeInvoicePayload(array $invoice): array
     {
-        if (!isset($invoice['lines']) || !is_array($invoice['lines'])) {
+        if (! isset($invoice['lines']) || ! is_array($invoice['lines'])) {
             return $invoice;
         }
 

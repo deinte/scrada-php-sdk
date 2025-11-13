@@ -10,7 +10,7 @@ namespace Deinte\ScradaSdk\Dto;
 final readonly class PeppolLookupResult
 {
     /**
-     * @param array<string, mixed> $meta
+     * @param  array<string, mixed>  $meta
      */
     public function __construct(
         public bool $canReceiveInvoices,
@@ -22,7 +22,7 @@ final readonly class PeppolLookupResult
     ) {}
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {

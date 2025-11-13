@@ -12,7 +12,7 @@ namespace Deinte\ScradaSdk\Dto;
 final readonly class InboundDocument
 {
     /**
-     * @param array<string, mixed> $raw
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         public string $id,
@@ -27,7 +27,7 @@ final readonly class InboundDocument
     ) {}
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {

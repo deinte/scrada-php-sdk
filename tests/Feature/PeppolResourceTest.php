@@ -9,7 +9,7 @@ use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 
 it('performs a peppol lookup', function (): void {
-    $mockClient = new MockClient([
+    MockClient::global([
         LookupPartyRequest::class => MockResponse::make([
             'invoice' => true,
             'creditNote' => false,
@@ -20,8 +20,6 @@ it('performs a peppol lookup', function (): void {
     ]);
 
     $connector = new ScradaConnector('key', 'secret', 'company');
-    $connector->withMockClient($mockClient);
-
     $resource = new PeppolResource($connector);
     $result = $resource->lookupParty([
         'code' => 'CUST01',
@@ -37,4 +35,6 @@ it('performs a peppol lookup', function (): void {
 
     expect($result->canReceiveInvoices)->toBeTrue()
         ->and($result->canReceiveOrders)->toBeTrue();
+
+    MockClient::destroyGlobal();
 });

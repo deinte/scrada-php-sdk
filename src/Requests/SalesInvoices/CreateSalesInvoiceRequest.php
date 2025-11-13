@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Deinte\ScradaSdk\Requests\SalesInvoices;
 
-use Deinte\ScradaSdk\ScradaConnector;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
@@ -20,19 +19,16 @@ final class CreateSalesInvoiceRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public function __construct(
+        private readonly string $companyId,
         private readonly array $payload,
     ) {}
 
     public function resolveEndpoint(): string
     {
-        /** @var ScradaConnector $connector */
-        $connector = $this->connector;
-        $companyId = $connector->getCompanyId();
-
-        return sprintf('/v1/company/%s/salesInvoice', $companyId);
+        return sprintf('/v1/company/%s/salesInvoice', $this->companyId);
     }
 
     /**

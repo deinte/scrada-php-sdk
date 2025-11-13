@@ -36,10 +36,10 @@ final class ScradaConnector extends Connector
     private readonly string $baseUrl;
 
     /**
-     * @param non-empty-string $apiKey
-     * @param non-empty-string $apiSecret
-     * @param non-empty-string $companyId
-     * @param non-empty-string|null $baseUrl
+     * @param  non-empty-string  $apiKey
+     * @param  non-empty-string  $apiSecret
+     * @param  non-empty-string  $companyId
+     * @param  non-empty-string|null  $baseUrl
      */
     public function __construct(
         string $apiKey,
@@ -85,7 +85,7 @@ final class ScradaConnector extends Connector
     }
 
     /**
-     * @param non-empty-string $value
+     * @param  non-empty-string  $value
      * @return non-empty-string
      */
     private function guardBaseUrl(string $value): string
@@ -104,7 +104,7 @@ final class ScradaConnector extends Connector
     }
 
     /**
-     * @param non-empty-string $value
+     * @param  non-empty-string  $value
      * @return non-empty-string
      */
     private function guardNonEmpty(string $value, string $label): string

@@ -12,7 +12,7 @@ use Saloon\Http\Response;
 final class ValidationException extends ScradaException
 {
     /**
-     * @param array<string, array<int, string>> $errors
+     * @param  array<string, array<int, string>>  $errors
      */
     public function __construct(
         string $message,

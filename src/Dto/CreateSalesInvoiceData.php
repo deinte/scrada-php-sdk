@@ -10,7 +10,7 @@ namespace Deinte\ScradaSdk\Dto;
 final readonly class CreateSalesInvoiceData
 {
     /**
-     * @param array<int, InvoiceLine> $lines
+     * @param  array<int, InvoiceLine>  $lines
      */
     public function __construct(
         public string $bookYear,
@@ -28,7 +28,7 @@ final readonly class CreateSalesInvoiceData
     ) {}
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {

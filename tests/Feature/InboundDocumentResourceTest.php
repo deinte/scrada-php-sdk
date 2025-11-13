@@ -11,7 +11,7 @@ use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 
 it('lists and confirms inbound documents', function (): void {
-    $mockClient = new MockClient([
+    MockClient::global([
         GetUnconfirmedDocumentsRequest::class => MockResponse::make([
             [
                 'id' => 'doc-1',
@@ -36,8 +36,6 @@ it('lists and confirms inbound documents', function (): void {
     ]);
 
     $connector = new ScradaConnector('key', 'secret', 'company');
-    $connector->withMockClient($mockClient);
-
     $resource = new InboundDocumentResource($connector);
 
     $documents = $resource->getUnconfirmed();
@@ -47,4 +45,6 @@ it('lists and confirms inbound documents', function (): void {
     expect($documents)->toHaveCount(1)
         ->and($document->supplierName)->toBe('Supplier')
         ->and($confirmed)->toBeTrue();
+
+    MockClient::destroyGlobal();
 });

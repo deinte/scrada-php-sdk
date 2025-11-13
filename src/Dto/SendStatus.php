@@ -10,7 +10,7 @@ namespace Deinte\ScradaSdk\Dto;
 final readonly class SendStatus
 {
     /**
-     * @param array<string, mixed> $meta
+     * @param  array<string, mixed>  $meta
      */
     public function __construct(
         public string $status,
@@ -21,7 +21,7 @@ final readonly class SendStatus
     ) {}
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {

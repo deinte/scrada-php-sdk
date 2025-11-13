@@ -28,13 +28,13 @@ final class InboundDocumentResource extends BaseResource
      */
     public function getUnconfirmed(): array
     {
-        $response = $this->connector->send(new GetUnconfirmedDocumentsRequest());
+        $response = $this->connector->send(new GetUnconfirmedDocumentsRequest);
 
         $this->throwIfError($response);
 
         $data = $response->json();
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return [];
         }
 
@@ -60,7 +60,7 @@ final class InboundDocumentResource extends BaseResource
 
         $data = $response->json();
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return new InboundDocument($documentId, '', '', '', '', 0.0, null, null);
         }
 
@@ -90,7 +90,7 @@ final class InboundDocumentResource extends BaseResource
 
         $data = $response->json();
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return true;
         }
 

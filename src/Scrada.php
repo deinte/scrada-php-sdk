@@ -19,10 +19,10 @@ final class Scrada
     /**
      * Bootstrap a new Scrada SDK instance.
      *
-     * @param non-empty-string $apiKey
-     * @param non-empty-string $apiSecret
-     * @param non-empty-string $companyId
-     * @param non-empty-string|null $baseUrl
+     * @param  non-empty-string  $apiKey
+     * @param  non-empty-string  $apiSecret
+     * @param  non-empty-string  $companyId
+     * @param  non-empty-string|null  $baseUrl
      */
     public function __construct(
         string $apiKey,

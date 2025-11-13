@@ -10,8 +10,8 @@ namespace Deinte\ScradaSdk\Dto;
 final readonly class AddDailyReceiptLinesData
 {
     /**
-     * @param array<int, DailyReceiptLine> $lines
-     * @param array<int, array{paymentMethodID: string, amount: float}> $paymentMethods
+     * @param  array<int, DailyReceiptLine>  $lines
+     * @param  array<int, array{paymentMethodID: string, amount: float}>  $paymentMethods
      */
     public function __construct(
         public string $date,
@@ -20,7 +20,7 @@ final readonly class AddDailyReceiptLinesData
     ) {}
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {

@@ -20,7 +20,7 @@ final class PeppolResource extends BaseResource
     /**
      * Perform a Peppol lookup for a customer.
      *
-     * @param array<string, mixed>|Customer $payload
+     * @param  array<string, mixed>|Customer  $payload
      */
     public function lookupParty(array|Customer $payload): PeppolLookupResult
     {
@@ -31,7 +31,7 @@ final class PeppolResource extends BaseResource
 
         $data = $response->json();
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return new PeppolLookupResult(false, false, false, false, false);
         }
 

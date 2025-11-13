@@ -26,13 +26,16 @@ final class DailyReceiptsResource extends BaseResource
      */
     public function getPaymentMethods(string $journalId): array
     {
-        $response = $this->connector->send(new GetPaymentMethodsRequest($journalId));
+        $response = $this->connector->send(new GetPaymentMethodsRequest(
+            $this->connector->getCompanyId(),
+            $journalId
+        ));
 
         $this->throwIfError($response);
 
         $data = $response->json();
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return [];
         }
 
@@ -50,7 +53,7 @@ final class DailyReceiptsResource extends BaseResource
     /**
      * Add lines to a daily receipts journal.
      *
-     * @param array<string, mixed>|AddDailyReceiptLinesData $payload
+     * @param  array<string, mixed>|AddDailyReceiptLinesData  $payload
      */
     public function addLines(string $journalId, array|AddDailyReceiptLinesData $payload): void
     {
@@ -58,18 +61,22 @@ final class DailyReceiptsResource extends BaseResource
             ? $payload->toArray()
             : $this->normalizePayload($payload);
 
-        $response = $this->connector->send(new AddDailyReceiptLinesRequest($journalId, $data));
+        $response = $this->connector->send(new AddDailyReceiptLinesRequest(
+            $this->connector->getCompanyId(),
+            $journalId,
+            $data
+        ));
 
         $this->throwIfError($response);
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
     private function normalizePayload(array $payload): array
     {
-        if (!isset($payload['lines']) || !is_array($payload['lines'])) {
+        if (! isset($payload['lines']) || ! is_array($payload['lines'])) {
             return $payload;
         }
 

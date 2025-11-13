@@ -17,7 +17,7 @@ use Saloon\Http\Response;
 trait HandlesResponseErrors
 {
     /**
-     * @param Closure():NotFoundException|null $notFoundFactory
+     * @param  Closure():NotFoundException|null  $notFoundFactory
      */
     private function throwIfError(Response $response, ?Closure $notFoundFactory = null): void
     {
