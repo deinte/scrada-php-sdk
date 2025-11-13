@@ -1,66 +1,133 @@
-# :package_description
+# Scrada PHP SDK
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![Tests](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions/workflows/run-tests.yml)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-<!--delete-->
----
-This package can be used as to scaffold a framework agnostic package. Follow these steps to get started:
+Production-ready SDK for the [Scrada](https://www.scrada.be) API with first-class Peppol support and a fluent Oh Dear–style developer experience.
 
-1. Press the "Use template" button at the top of this repo to create a new repo with the contents of this skeleton
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
----
-<!--/delete-->
-This is where your description should go. Try and limit it to a paragraph or two. Consider adding a small example.
+## Highlights
 
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+- Built on [Saloon v3](https://docs.saloon.dev) with typed resources and requests
+- Defensive programming, PSR-12, and zero `else` statements
+- DTOs for every payload to guarantee consistent structures
+- PHPUnit + Pest test suite with architectural rules and Saloon mocks
+- PHPStan level 9 configuration out of the box
 
 ## Installation
 
-You can install the package via composer:
-
 ```bash
-composer require :vendor_slug/:package_slug
+composer require deinte/scrada-php-sdk
+```
+
+## Configuration
+
+Set your Scrada credentials (for example in `.env`):
+
+```dotenv
+SCRADA_API_KEY=your-api-key
+SCRADA_API_SECRET=your-api-secret
+SCRADA_COMPANY_ID=your-company-uuid
+SCRADA_BASE_URL=https://apitest.scrada.be # optional, defaults to production
 ```
 
 ## Usage
 
 ```php
-$skeleton = new VendorName\Skeleton();
-echo $skeleton->echoPhrase('Hello, VendorName!');
+use Deinte\ScradaSdk\Scrada;
+
+$scrada = new Scrada(
+    apiKey: $_ENV['SCRADA_API_KEY'],
+    apiSecret: $_ENV['SCRADA_API_SECRET'],
+    companyId: $_ENV['SCRADA_COMPANY_ID'],
+    baseUrl: $_ENV['SCRADA_BASE_URL'] ?? null,
+);
+
+// Daily receipts
+$paymentMethods = $scrada->dailyReceipts()->getPaymentMethods('journal-id');
+$scrada->dailyReceipts()->addLines('journal-id', [
+    'date' => '2025-06-05',
+    'lines' => [
+        [
+            'lineType' => 1,
+            'vatTypeID' => 'vat-type',
+            'vatPerc' => 21,
+            'amount' => 100,
+        ],
+    ],
+    'paymentMethods' => [
+        ['paymentMethodID' => 'pm-1', 'amount' => 100],
+    ],
+]);
+
+// Sales invoices + Peppol
+$invoice = $scrada->salesInvoices()->create([
+    'bookYear' => '2025',
+    'journal' => 'SALES',
+    'number' => '2025-001',
+    'creditInvoice' => false,
+    'invoiceDate' => '2025-06-03',
+    'invoiceExpiryDate' => '2025-06-30',
+    'customer' => [
+        'code' => 'CUST01',
+        'name' => 'Customer',
+        'email' => 'customer@example.com',
+        'vatNumber' => 'BE0123456789',
+        'address' => [
+            'street' => 'Main Street',
+            'streetNumber' => '1',
+            'city' => 'Brussels',
+            'zipCode' => '1000',
+            'countryCode' => 'BE',
+        ],
+    ],
+    'totalInclVat' => 121,
+    'totalExclVat' => 100,
+    'totalVat' => 21,
+    'lines' => [
+        [
+            'description' => 'Service',
+            'quantity' => 1,
+            'unitPrice' => 100,
+            'vatPerc' => 21,
+            'vatTypeID' => 'vat-type',
+        ],
+    ],
+]);
+
+$status = $scrada->salesInvoices()->getSendStatus($invoice->id ?? 'invoice-id');
+$ubl = $scrada->salesInvoices()->getUbl($invoice->id ?? 'invoice-id');
+$peppol = $scrada->peppol()->lookupParty([
+    'code' => 'CUST01',
+    'name' => 'Customer',
+    'vatNumber' => 'BE0123456789',
+    'email' => 'customer@example.com',
+    'address' => [
+        'street' => 'Main Street',
+        'streetNumber' => '1',
+        'city' => 'Brussels',
+        'zipCode' => '1000',
+        'countryCode' => 'BE',
+    ],
+]);
+
+// Inbound documents
+$documents = $scrada->inboundDocuments()->getUnconfirmed();
+foreach ($documents as $document) {
+    $pdf = $scrada->inboundDocuments()->getPdf($document->id);
+    $scrada->inboundDocuments()->confirm($document->id);
+}
 ```
 
-## Testing
+## Testing & Quality
 
 ```bash
-composer test
+composer test        # Runs Pest + PHPUnit (unit, feature, and architecture tests)
+composer analyse     # PHPStan level 9
+composer format      # Laravel Pint
+composer test-coverage
 ```
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](https://github.com/spatie/.github/blob/main/CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [:author_name](https://github.com/:author_username)
-- [All Contributors](../../contributors)
+Please see [CHANGELOG](CHANGELOG.md) for release details.
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). See [LICENSE.md](LICENSE.md) for details.
