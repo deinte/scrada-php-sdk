@@ -9,17 +9,19 @@ use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 
 it('performs a peppol lookup', function (): void {
-    MockClient::global([
+    $mockClient = new MockClient([
         LookupPartyRequest::class => MockResponse::make([
-            'invoice' => true,
-            'creditNote' => false,
-            'order' => true,
-            'orderResponse' => false,
-            'despatchAdvice' => false,
+            'registered' => true,
+            'supportInvoice' => true,
+            'supportCreditInvoice' => false,
+            'supportSelfBillingInvoice' => false,
+            'supportSelfBillingCreditInvoice' => false,
         ]),
     ]);
 
     $connector = new ScradaConnector('key', 'secret', 'company');
+    $connector->withMockClient($mockClient);
+
     $resource = new PeppolResource($connector);
     $result = $resource->lookupParty([
         'code' => 'CUST01',
@@ -33,8 +35,33 @@ it('performs a peppol lookup', function (): void {
         ],
     ]);
 
-    expect($result->canReceiveInvoices)->toBeTrue()
-        ->and($result->canReceiveOrders)->toBeTrue();
+    expect($result->registered)->toBeTrue()
+        ->and($result->supportInvoice)->toBeTrue()
+        ->and($result->canReceiveInvoices())->toBeTrue();
+});
 
-    MockClient::destroyGlobal();
+it('returns false for unregistered party', function (): void {
+    $mockClient = new MockClient([
+        LookupPartyRequest::class => MockResponse::make([
+            'registered' => false,
+            'supportInvoice' => false,
+            'supportCreditInvoice' => false,
+            'supportSelfBillingInvoice' => false,
+            'supportSelfBillingCreditInvoice' => false,
+        ]),
+    ]);
+
+    $connector = new ScradaConnector('key', 'secret', 'company');
+    $connector->withMockClient($mockClient);
+
+    $resource = new PeppolResource($connector);
+    $result = $resource->lookupParty([
+        'name' => 'Unknown Company',
+        'address' => [
+            'countryCode' => 'BE',
+        ],
+    ]);
+
+    expect($result->registered)->toBeFalse()
+        ->and($result->canReceiveInvoices())->toBeFalse();
 });

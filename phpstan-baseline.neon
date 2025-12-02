@@ -1,56 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\DailyReceipts\\\\AddDailyReceiptLinesRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/DailyReceipts/AddDailyReceiptLinesRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\DailyReceipts\\\\GetPaymentMethodsRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/DailyReceipts/GetPaymentMethodsRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\InboundDocuments\\\\ConfirmDocumentRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/InboundDocuments/ConfirmDocumentRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\InboundDocuments\\\\GetDocumentPdfRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/InboundDocuments/GetDocumentPdfRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\InboundDocuments\\\\GetDocumentRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/InboundDocuments/GetDocumentRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\InboundDocuments\\\\GetUnconfirmedDocumentsRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/InboundDocuments/GetUnconfirmedDocumentsRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\Peppol\\\\LookupPartyRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/Peppol/LookupPartyRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\SalesInvoices\\\\CreateSalesInvoiceRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/SalesInvoices/CreateSalesInvoiceRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\SalesInvoices\\\\GetSalesInvoiceSendStatusRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/SalesInvoices/GetSalesInvoiceSendStatusRequest.php
-
-		-
-			message: "#^Access to an undefined property Deinte\\\\ScradaSdk\\\\Requests\\\\SalesInvoices\\\\GetSalesInvoiceUblRequest\\:\\:\\$connector\\.$#"
-			count: 1
-			path: src/Requests/SalesInvoices/GetSalesInvoiceUblRequest.php
-
-		-
 			message: "#^Strict comparison using \\=\\=\\= between non\\-empty\\-string and '' will always evaluate to false\\.$#"
 			count: 1
 			path: src/Scrada.php

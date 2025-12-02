@@ -10,15 +10,21 @@ use Deinte\ScradaSdk\Dto\CreateSalesInvoiceResponse;
 use Deinte\ScradaSdk\Dto\InvoiceLine;
 use Deinte\ScradaSdk\Dto\SalesInvoice;
 use Deinte\ScradaSdk\Dto\SendStatus;
+use Deinte\ScradaSdk\Exceptions\AuthenticationException;
 use Deinte\ScradaSdk\Exceptions\NotFoundException;
+use Deinte\ScradaSdk\Exceptions\ScradaException;
+use Deinte\ScradaSdk\Exceptions\ValidationException;
 use Deinte\ScradaSdk\Requests\SalesInvoices\CreateSalesInvoiceRequest;
 use Deinte\ScradaSdk\Requests\SalesInvoices\GetSalesInvoiceSendStatusRequest;
 use Deinte\ScradaSdk\Requests\SalesInvoices\GetSalesInvoiceUblRequest;
 use Deinte\ScradaSdk\Resources\Concerns\HandlesResponseErrors;
+use Deinte\ScradaSdk\ScradaConnector;
 use Saloon\Http\BaseResource;
 
 /**
  * Sales invoice operations.
+ *
+ * @property ScradaConnector $connector
  */
 final class SalesInvoiceResource extends BaseResource
 {
@@ -28,6 +34,10 @@ final class SalesInvoiceResource extends BaseResource
      * Create a new sales invoice.
      *
      * @param  array<string, mixed>|CreateSalesInvoiceData|SalesInvoice  $invoice
+     *
+     * @throws AuthenticationException
+     * @throws ValidationException
+     * @throws ScradaException
      */
     public function create(array|CreateSalesInvoiceData|SalesInvoice $invoice): CreateSalesInvoiceResponse
     {
@@ -37,7 +47,10 @@ final class SalesInvoiceResource extends BaseResource
             default => $this->normalizeInvoicePayload($invoice),
         };
 
-        $response = $this->connector->send(new CreateSalesInvoiceRequest($payload));
+        $response = $this->connector->send(new CreateSalesInvoiceRequest(
+            $this->connector->getCompanyId(),
+            $payload
+        ));
 
         $this->throwIfError($response);
 
@@ -52,10 +65,18 @@ final class SalesInvoiceResource extends BaseResource
 
     /**
      * Retrieve the send status of an invoice.
+     *
+     * @throws AuthenticationException
+     * @throws NotFoundException
+     * @throws ValidationException
+     * @throws ScradaException
      */
     public function getSendStatus(string $salesInvoiceId): SendStatus
     {
-        $response = $this->connector->send(new GetSalesInvoiceSendStatusRequest($salesInvoiceId));
+        $response = $this->connector->send(new GetSalesInvoiceSendStatusRequest(
+            $this->connector->getCompanyId(),
+            $salesInvoiceId
+        ));
 
         $this->throwIfError($response, $this->notFoundFactory('Sales invoice', $salesInvoiceId));
 
@@ -70,10 +91,18 @@ final class SalesInvoiceResource extends BaseResource
 
     /**
      * Retrieve the UBL XML for an invoice.
+     *
+     * @throws AuthenticationException
+     * @throws NotFoundException
+     * @throws ValidationException
+     * @throws ScradaException
      */
     public function getUbl(string $salesInvoiceId): string
     {
-        $response = $this->connector->send(new GetSalesInvoiceUblRequest($salesInvoiceId));
+        $response = $this->connector->send(new GetSalesInvoiceUblRequest(
+            $this->connector->getCompanyId(),
+            $salesInvoiceId
+        ));
 
         $this->throwIfError($response, $this->notFoundFactory('Sales invoice', $salesInvoiceId));
 

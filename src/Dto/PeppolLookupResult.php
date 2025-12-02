@@ -5,19 +5,21 @@ declare(strict_types=1);
 namespace Deinte\ScradaSdk\Dto;
 
 /**
- * Result of a Peppol lookup request.
+ * Result of a Peppol lookup request from Scrada API.
+ *
+ * Properties match the exact field names returned by the Scrada API.
  */
 final readonly class PeppolLookupResult
 {
     /**
-     * @param  array<string, mixed>  $meta
+     * @param  array<string, mixed>  $meta  The full API response for additional fields
      */
     public function __construct(
-        public bool $canReceiveInvoices,
-        public bool $canReceiveCreditNotes,
-        public bool $canReceiveOrders,
-        public bool $canReceiveOrderResponses,
-        public bool $canReceiveDespatchAdvice,
+        public bool $registered,
+        public bool $supportInvoice,
+        public bool $supportCreditInvoice,
+        public bool $supportSelfBillingInvoice,
+        public bool $supportSelfBillingCreditInvoice,
         public array $meta = [],
     ) {}
 
@@ -27,12 +29,44 @@ final readonly class PeppolLookupResult
     public static function fromArray(array $data): self
     {
         return new self(
-            canReceiveInvoices: (bool) ($data['invoice'] ?? ($data['canReceiveInvoices'] ?? false)),
-            canReceiveCreditNotes: (bool) ($data['creditNote'] ?? ($data['canReceiveCreditNotes'] ?? false)),
-            canReceiveOrders: (bool) ($data['order'] ?? ($data['canReceiveOrders'] ?? false)),
-            canReceiveOrderResponses: (bool) ($data['orderResponse'] ?? ($data['canReceiveOrderResponses'] ?? false)),
-            canReceiveDespatchAdvice: (bool) ($data['despatchAdvice'] ?? ($data['canReceiveDespatchAdvice'] ?? false)),
-            meta: $data
+            registered: (bool) ($data['registered'] ?? false),
+            supportInvoice: (bool) ($data['supportInvoice'] ?? false),
+            supportCreditInvoice: (bool) ($data['supportCreditInvoice'] ?? false),
+            supportSelfBillingInvoice: (bool) ($data['supportSelfBillingInvoice'] ?? false),
+            supportSelfBillingCreditInvoice: (bool) ($data['supportSelfBillingCreditInvoice'] ?? false),
+            meta: $data,
         );
+    }
+
+    /**
+     * Check if the party can receive invoices via PEPPOL.
+     *
+     * A party can receive invoices if they are registered AND support invoices.
+     */
+    public function canReceiveInvoices(): bool
+    {
+        return $this->registered && $this->supportInvoice;
+    }
+
+    /**
+     * Check if the party can receive credit invoices via PEPPOL.
+     */
+    public function canReceiveCreditInvoices(): bool
+    {
+        return $this->registered && $this->supportCreditInvoice;
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    public function toArray(): array
+    {
+        return [
+            'registered' => $this->registered,
+            'supportInvoice' => $this->supportInvoice,
+            'supportCreditInvoice' => $this->supportCreditInvoice,
+            'supportSelfBillingInvoice' => $this->supportSelfBillingInvoice,
+            'supportSelfBillingCreditInvoice' => $this->supportSelfBillingCreditInvoice,
+        ];
     }
 }

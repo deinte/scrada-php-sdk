@@ -7,13 +7,19 @@ namespace Deinte\ScradaSdk\Resources;
 use Deinte\ScradaSdk\Dto\AddDailyReceiptLinesData;
 use Deinte\ScradaSdk\Dto\DailyReceiptLine;
 use Deinte\ScradaSdk\Dto\PaymentMethod;
+use Deinte\ScradaSdk\Exceptions\AuthenticationException;
+use Deinte\ScradaSdk\Exceptions\ScradaException;
+use Deinte\ScradaSdk\Exceptions\ValidationException;
 use Deinte\ScradaSdk\Requests\DailyReceipts\AddDailyReceiptLinesRequest;
 use Deinte\ScradaSdk\Requests\DailyReceipts\GetPaymentMethodsRequest;
 use Deinte\ScradaSdk\Resources\Concerns\HandlesResponseErrors;
+use Deinte\ScradaSdk\ScradaConnector;
 use Saloon\Http\BaseResource;
 
 /**
  * Daily receipts endpoints.
+ *
+ * @property ScradaConnector $connector
  */
 final class DailyReceiptsResource extends BaseResource
 {
@@ -23,6 +29,10 @@ final class DailyReceiptsResource extends BaseResource
      * Retrieve configured payment methods for a daily receipts journal.
      *
      * @return array<int, PaymentMethod>
+     *
+     * @throws AuthenticationException
+     * @throws ValidationException
+     * @throws ScradaException
      */
     public function getPaymentMethods(string $journalId): array
     {
@@ -39,21 +49,24 @@ final class DailyReceiptsResource extends BaseResource
             return [];
         }
 
-        $items = array_filter(
-            $data,
-            static fn (mixed $item): bool => is_array($item)
-        );
+        $result = [];
+        foreach ($data as $item) {
+            if (is_array($item)) {
+                $result[] = PaymentMethod::fromArray($item);
+            }
+        }
 
-        return array_map(
-            static fn (array $item): PaymentMethod => PaymentMethod::fromArray($item),
-            array_values($items)
-        );
+        return $result;
     }
 
     /**
      * Add lines to a daily receipts journal.
      *
      * @param  array<string, mixed>|AddDailyReceiptLinesData  $payload
+     *
+     * @throws AuthenticationException
+     * @throws ValidationException
+     * @throws ScradaException
      */
     public function addLines(string $journalId, array|AddDailyReceiptLinesData $payload): void
     {

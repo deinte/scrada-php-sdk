@@ -49,4 +49,35 @@ final readonly class InboundDocument
             raw: $data
         );
     }
+
+    /**
+     * Convert to array for serialization.
+     *
+     * Note: The raw property is intentionally excluded as it contains
+     * the original API response and would cause circular data. Access
+     * the raw property directly if you need the full original response.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $result = [
+            'id' => $this->id,
+            'documentNumber' => $this->documentNumber,
+            'supplierName' => $this->supplierName,
+            'status' => $this->status,
+            'receivedAt' => $this->receivedAt,
+            'totalInclVat' => $this->totalInclVat,
+        ];
+
+        if ($this->totalExclVat !== null) {
+            $result['totalExclVat'] = $this->totalExclVat;
+        }
+
+        if ($this->currency !== null) {
+            $result['currency'] = $this->currency;
+        }
+
+        return $result;
+    }
 }
