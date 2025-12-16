@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Dto\Address;
-use Deinte\ScradaSdk\Dto\Customer;
-use Deinte\ScradaSdk\Dto\InvoiceLine;
-use Deinte\ScradaSdk\Dto\SalesInvoice;
+use Deinte\ScradaSdk\Data\Address;
+use Deinte\ScradaSdk\Data\Customer;
+use Deinte\ScradaSdk\Data\InvoiceLine;
+use Deinte\ScradaSdk\Data\SalesInvoice;
 
 it('converts invoice to array payload', function (): void {
     $invoice = new SalesInvoice(
@@ -27,7 +27,7 @@ it('converts invoice to array payload', function (): void {
             address: new Address('Street', '1', 'Brussels', '1000', 'BE')
         ),
         lines: [
-            new InvoiceLine('Service', 1, 100.0, 21.0, 'vat-type'),
+            new InvoiceLine('Service', 1, 100.0, 21.0, 1),
         ],
         alreadySentToCustomer: true,
         status: 'queued'
@@ -41,7 +41,7 @@ it('converts invoice to array payload', function (): void {
 
     $lines = $payload['lines'];
     if (is_array($lines) && isset($lines[0]) && is_array($lines[0])) {
-        expect($lines[0]['description'])->toBe('Service');
+        expect($lines[0]['itemName'])->toBe('Service');
     }
 
     expect($payload['customer'])->toBeArray();

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Dto\InboundDocument;
+use Deinte\ScradaSdk\Data\InboundDocument;
 
 it('creates document from array', function (): void {
     $data = [

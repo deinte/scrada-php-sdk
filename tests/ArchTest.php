@@ -27,8 +27,8 @@ arch('exceptions extend base exception')
         ScradaException::class,
     ]);
 
-arch('DTOs are readonly')
-    ->expect('Deinte\ScradaSdk\Dto')
+arch('Data classes are readonly')
+    ->expect('Deinte\ScradaSdk\Data')
     ->classes()
     ->toBeReadonly();
 

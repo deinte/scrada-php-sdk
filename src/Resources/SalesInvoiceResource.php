@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Deinte\ScradaSdk\Resources;
 
 use Closure;
-use Deinte\ScradaSdk\Dto\CreateSalesInvoiceData;
-use Deinte\ScradaSdk\Dto\CreateSalesInvoiceResponse;
-use Deinte\ScradaSdk\Dto\InvoiceLine;
-use Deinte\ScradaSdk\Dto\SalesInvoice;
-use Deinte\ScradaSdk\Dto\SendStatus;
+use Deinte\ScradaSdk\Data\CreateSalesInvoiceData;
+use Deinte\ScradaSdk\Data\CreateSalesInvoiceResponse;
+use Deinte\ScradaSdk\Data\InvoiceLine;
+use Deinte\ScradaSdk\Data\SalesInvoice;
+use Deinte\ScradaSdk\Data\SendStatus;
 use Deinte\ScradaSdk\Exceptions\AuthenticationException;
 use Deinte\ScradaSdk\Exceptions\NotFoundException;
 use Deinte\ScradaSdk\Exceptions\ScradaException;
@@ -54,10 +54,18 @@ final class SalesInvoiceResource extends BaseResource
 
         $this->throwIfError($response);
 
-        $data = $response->json();
+        // Scrada may return a simple string (invoice ID) or a JSON object
+        $body = $response->body();
 
+        // Try to decode as JSON first
+        $data = json_decode($body, true);
+
+        // If decoding failed or result is a string, it's likely just an invoice ID
         if (! is_array($data)) {
-            return new CreateSalesInvoiceResponse('', 'draft');
+            // The body might be a quoted string like "12345" or just 12345
+            $invoiceId = is_string($data) ? $data : trim($body, '"');
+
+            return new CreateSalesInvoiceResponse((string) $invoiceId, 'draft');
         }
 
         return CreateSalesInvoiceResponse::fromArray($data);

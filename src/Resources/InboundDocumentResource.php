@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Deinte\ScradaSdk\Resources;
 
 use Closure;
-use Deinte\ScradaSdk\Dto\InboundDocument;
+use Deinte\ScradaSdk\Data\InboundDocument;
 use Deinte\ScradaSdk\Exceptions\AuthenticationException;
 use Deinte\ScradaSdk\Exceptions\NotFoundException;
 use Deinte\ScradaSdk\Exceptions\ScradaException;

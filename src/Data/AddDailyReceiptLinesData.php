@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Dto;
+namespace Deinte\ScradaSdk\Data;
 
 /**
  * Request data for adding daily receipt lines.

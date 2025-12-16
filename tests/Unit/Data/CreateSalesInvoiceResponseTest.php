@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Dto\CreateSalesInvoiceResponse;
+use Deinte\ScradaSdk\Data\CreateSalesInvoiceResponse;
 
 it('creates response from array', function (): void {
     $data = [

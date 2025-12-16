@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Dto\PeppolLookupResult;
+use Deinte\ScradaSdk\Data\PeppolLookupResult;
 
 it('creates result from array with Scrada API field names', function (): void {
     $data = [

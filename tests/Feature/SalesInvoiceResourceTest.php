@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Dto\CreateSalesInvoiceResponse;
+use Deinte\ScradaSdk\Data\CreateSalesInvoiceResponse;
 use Deinte\ScradaSdk\Requests\SalesInvoices\CreateSalesInvoiceRequest;
 use Deinte\ScradaSdk\Requests\SalesInvoices\GetSalesInvoiceSendStatusRequest;
 use Deinte\ScradaSdk\Resources\SalesInvoiceResource;

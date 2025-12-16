@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Dto\AddDailyReceiptLinesData;
-use Deinte\ScradaSdk\Dto\DailyReceiptLine;
+use Deinte\ScradaSdk\Data\AddDailyReceiptLinesData;
+use Deinte\ScradaSdk\Data\DailyReceiptLine;
 
 it('creates request data from array', function (): void {
     $data = [

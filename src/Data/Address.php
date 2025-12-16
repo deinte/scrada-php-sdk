@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Dto;
+namespace Deinte\ScradaSdk\Data;
 
 /**
  * Postal address used throughout the Scrada API.

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Deinte\ScradaSdk\Resources;
 
-use Deinte\ScradaSdk\Dto\AddDailyReceiptLinesData;
-use Deinte\ScradaSdk\Dto\DailyReceiptLine;
-use Deinte\ScradaSdk\Dto\PaymentMethod;
+use Deinte\ScradaSdk\Data\AddDailyReceiptLinesData;
+use Deinte\ScradaSdk\Data\DailyReceiptLine;
+use Deinte\ScradaSdk\Data\PaymentMethod;
 use Deinte\ScradaSdk\Exceptions\AuthenticationException;
 use Deinte\ScradaSdk\Exceptions\ScradaException;
 use Deinte\ScradaSdk\Exceptions\ValidationException;

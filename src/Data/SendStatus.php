@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Dto;
+namespace Deinte\ScradaSdk\Data;
 
 /**
  * Describes how a sales invoice has been dispatched.

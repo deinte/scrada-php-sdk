@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Deinte\ScradaSdk\Resources;
 
-use Deinte\ScradaSdk\Dto\Customer;
-use Deinte\ScradaSdk\Dto\PeppolLookupResult;
+use Deinte\ScradaSdk\Data\Customer;
+use Deinte\ScradaSdk\Data\PeppolLookupResult;
 use Deinte\ScradaSdk\Exceptions\AuthenticationException;
 use Deinte\ScradaSdk\Exceptions\ScradaException;
 use Deinte\ScradaSdk\Exceptions\ValidationException;
