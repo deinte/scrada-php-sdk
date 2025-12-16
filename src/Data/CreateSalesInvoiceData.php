@@ -28,7 +28,8 @@ final readonly class CreateSalesInvoiceData
         public ?string $pdfFilename = null,
         public ?string $pdfMimeType = null,
         public ?string $pdfBase64Data = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $data

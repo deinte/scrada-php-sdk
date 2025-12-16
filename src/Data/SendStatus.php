@@ -18,7 +18,8 @@ final readonly class SendStatus
         public bool $emailSent,
         public bool $pending,
         public array $meta = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $data

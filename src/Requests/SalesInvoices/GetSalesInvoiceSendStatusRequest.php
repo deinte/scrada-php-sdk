@@ -17,7 +17,8 @@ final class GetSalesInvoiceSendStatusRequest extends Request
     public function __construct(
         private readonly string $companyId,
         private readonly string $salesInvoiceId,
-    ) {}
+    ) {
+    }
 
     public function resolveEndpoint(): string
     {

@@ -27,7 +27,8 @@ final readonly class InvoiceLine
         public ?float $totalExclVat = null,
         public ?float $totalDiscountExclVat = null,
         public ?float $vatAmount = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $data

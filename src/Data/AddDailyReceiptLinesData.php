@@ -17,7 +17,8 @@ final readonly class AddDailyReceiptLinesData
         public string $date,
         public array $lines,
         public array $paymentMethods,
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $data

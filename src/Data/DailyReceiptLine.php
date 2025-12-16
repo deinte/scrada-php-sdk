@@ -15,7 +15,8 @@ final readonly class DailyReceiptLine
         public float $vatPercentage,
         public float $amount,
         public ?string $categoryId = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $data
