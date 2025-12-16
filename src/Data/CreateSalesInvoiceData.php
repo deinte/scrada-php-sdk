@@ -11,6 +11,7 @@ final readonly class CreateSalesInvoiceData
 {
     /**
      * @param  array<int, InvoiceLine>  $lines
+     * @param  array<int, Attachment>  $attachments
      */
     public function __construct(
         public string $bookYear,
@@ -25,11 +26,8 @@ final readonly class CreateSalesInvoiceData
         public Customer $customer,
         public array $lines,
         public bool $alreadySentToCustomer = false,
-        public ?string $pdfFilename = null,
-        public ?string $pdfMimeType = null,
-        public ?string $pdfBase64Data = null,
-    ) {
-    }
+        public array $attachments = [],
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
@@ -48,6 +46,25 @@ final readonly class CreateSalesInvoiceData
         /** @var array<string, mixed> $customerArray */
         $customerArray = is_array($customerData) ? $customerData : [];
 
+        // Parse attachments array
+        $attachments = array_map(
+            static fn (array $attachment): Attachment => Attachment::fromArray($attachment),
+            array_values(array_filter(
+                array: is_array($data['attachments'] ?? null) ? $data['attachments'] : [],
+                callback: static fn (mixed $attachment): bool => is_array($attachment)
+            ))
+        );
+
+        // Support legacy single PDF attachment format
+        if (empty($attachments) && is_string($data['base64Data'] ?? null)) {
+            $attachments = [
+                Attachment::pdf(
+                    filename: is_string($data['filename'] ?? null) ? $data['filename'] : 'invoice.pdf',
+                    base64Data: $data['base64Data'],
+                ),
+            ];
+        }
+
         return new self(
             bookYear: is_string($data['bookYear'] ?? null) ? $data['bookYear'] : '',
             journal: is_string($data['journal'] ?? null) ? $data['journal'] : '',
@@ -61,18 +78,40 @@ final readonly class CreateSalesInvoiceData
             customer: Customer::fromArray($customerArray),
             lines: $lines,
             alreadySentToCustomer: (bool) ($data['alreadySendToCustomer'] ?? ($data['alreadySentToCustomer'] ?? false)),
-            pdfFilename: is_string($data['filename'] ?? null) ? $data['filename'] : null,
-            pdfMimeType: is_string($data['mimeType'] ?? null) ? $data['mimeType'] : null,
-            pdfBase64Data: is_string($data['base64Data'] ?? null) ? $data['base64Data'] : null,
+            attachments: $attachments,
         );
     }
 
     /**
-     * Check if a PDF attachment is included.
+     * Check if any attachments are included.
      */
-    public function hasPdf(): bool
+    public function hasAttachments(): bool
     {
-        return $this->pdfFilename !== null && $this->pdfBase64Data !== null;
+        return count($this->attachments) > 0;
+    }
+
+    /**
+     * Add an attachment.
+     *
+     * @return self New instance with added attachment
+     */
+    public function withAttachment(Attachment $attachment): self
+    {
+        return new self(
+            bookYear: $this->bookYear,
+            journal: $this->journal,
+            number: $this->number,
+            creditInvoice: $this->creditInvoice,
+            invoiceDate: $this->invoiceDate,
+            invoiceExpiryDate: $this->invoiceExpiryDate,
+            totalInclVat: $this->totalInclVat,
+            totalExclVat: $this->totalExclVat,
+            totalVat: $this->totalVat,
+            customer: $this->customer,
+            lines: $this->lines,
+            alreadySentToCustomer: $this->alreadySentToCustomer,
+            attachments: [...$this->attachments, $attachment],
+        );
     }
 
     /**
@@ -106,11 +145,12 @@ final readonly class CreateSalesInvoiceData
             'alreadySendToCustomer' => $this->alreadySentToCustomer,
         ];
 
-        // Add PDF attachment if present
-        if ($this->hasPdf()) {
-            $payload['filename'] = $this->pdfFilename;
-            $payload['mimeType'] = $this->pdfMimeType ?? 'application/pdf';
-            $payload['base64Data'] = $this->pdfBase64Data;
+        // Add attachments if present
+        if ($this->hasAttachments()) {
+            $payload['attachments'] = array_map(
+                static fn (Attachment $attachment): array => $attachment->toArray(),
+                $this->attachments
+            );
         }
 
         return $payload;
