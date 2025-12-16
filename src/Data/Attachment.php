@@ -24,7 +24,8 @@ final readonly class Attachment
         public string $mimeType = 'application/pdf',
         public ?string $note = null,
         public ?string $externalReference = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Create an attachment from a file path.
