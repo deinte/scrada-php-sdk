@@ -12,6 +12,7 @@ final readonly class CreateSalesInvoiceData
     /**
      * @param  array<int, InvoiceLine>  $lines
      * @param  array<int, Attachment>  $attachments
+     * @param  array<int, array{paymentType: int, name: string, totalPaid?: float, totalToPay?: float}>  $paymentMethods
      */
     public function __construct(
         public string $bookYear,
@@ -27,8 +28,8 @@ final readonly class CreateSalesInvoiceData
         public array $lines,
         public bool $alreadySentToCustomer = false,
         public array $attachments = [],
-    ) {
-    }
+        public array $paymentMethods = [],
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
@@ -66,6 +67,12 @@ final readonly class CreateSalesInvoiceData
             ];
         }
 
+        /** @var array<int, array{paymentType: int, name: string, totalPaid?: float, totalToPay?: float}> $paymentMethods */
+        $paymentMethods = array_values(array_filter(
+            array: is_array($data['paymentMethods'] ?? null) ? $data['paymentMethods'] : [],
+            callback: static fn (mixed $method): bool => is_array($method)
+        ));
+
         return new self(
             bookYear: is_string($data['bookYear'] ?? null) ? $data['bookYear'] : '',
             journal: is_string($data['journal'] ?? null) ? $data['journal'] : '',
@@ -80,6 +87,7 @@ final readonly class CreateSalesInvoiceData
             lines: $lines,
             alreadySentToCustomer: (bool) ($data['alreadySendToCustomer'] ?? ($data['alreadySentToCustomer'] ?? false)),
             attachments: $attachments,
+            paymentMethods: $paymentMethods,
         );
     }
 
@@ -112,7 +120,16 @@ final readonly class CreateSalesInvoiceData
             lines: $this->lines,
             alreadySentToCustomer: $this->alreadySentToCustomer,
             attachments: [...$this->attachments, $attachment],
+            paymentMethods: $this->paymentMethods,
         );
+    }
+
+    /**
+     * Check if any payment methods are included.
+     */
+    public function hasPaymentMethods(): bool
+    {
+        return count($this->paymentMethods) > 0;
     }
 
     /**
@@ -152,6 +169,11 @@ final readonly class CreateSalesInvoiceData
                 static fn (Attachment $attachment): array => $attachment->toArray(),
                 $this->attachments
             );
+        }
+
+        // Add payment methods if present (marks invoice as paid)
+        if ($this->hasPaymentMethods()) {
+            $payload['paymentMethods'] = $this->paymentMethods;
         }
 
         return $payload;
