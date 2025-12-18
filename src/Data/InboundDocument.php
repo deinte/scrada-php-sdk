@@ -24,8 +24,7 @@ final readonly class InboundDocument
         public ?float $totalExclVat,
         public ?string $currency,
         public array $raw = [],
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

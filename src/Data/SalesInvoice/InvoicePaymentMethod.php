@@ -16,8 +16,7 @@ final readonly class InvoicePaymentMethod
         public string $name,
         public ?float $totalPaid = null,
         public ?float $totalToPay = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

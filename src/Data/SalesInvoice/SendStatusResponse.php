@@ -39,8 +39,7 @@ final readonly class SendStatusResponse
         public ?string $receiverEmailAddress,
         public ?string $receiverEmailTime,
         public ?string $receiverEmailStatus,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

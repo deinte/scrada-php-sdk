@@ -16,8 +16,7 @@ final readonly class Customer
         public string $vatNumber,
         public Address $address,
         public ?string $phone = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

@@ -34,8 +34,7 @@ final readonly class CreateSalesInvoiceData
         public array $paymentMethods = [],
         public ?float $payableRoundingAmount = null,
         public ?string $note = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
