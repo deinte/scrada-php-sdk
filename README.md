@@ -1,14 +1,21 @@
 # Scrada PHP SDK
 
-Production-ready SDK for the [Scrada](https://www.scrada.be) API with first-class Peppol support and a fluent Oh Dear–style developer experience.
+[![Tests](https://github.com/deinte/scrada-php-sdk/actions/workflows/run-tests.yml/badge.svg)](https://github.com/deinte/scrada-php-sdk/actions/workflows/run-tests.yml)
+[![PHP Version](https://img.shields.io/packagist/php-v/deinte/scrada-php-sdk)](https://packagist.org/packages/deinte/scrada-php-sdk)
+[![License](https://img.shields.io/packagist/l/deinte/scrada-php-sdk)](LICENSE.md)
 
-## Highlights
+A PHP SDK for the [Scrada](https://www.scrada.be) accounting API with Peppol support, built on [Saloon v3](https://docs.saloon.dev).
 
-- Built on [Saloon v3](https://docs.saloon.dev) with typed resources and requests
-- Defensive programming, PSR-12, and zero `else` statements
-- DTOs for every payload to guarantee consistent structures
-- PHPUnit + Pest test suite with architectural rules and Saloon mocks
-- PHPStan level 9 configuration out of the box
+> **Note:** This package was co-authored with AI assistance. Not all API endpoints have been tested in production. Please test thoroughly before use.
+
+## Features
+
+- Sales invoices with Peppol dispatch
+- Peppol participant lookup
+- Inbound document processing
+- Daily receipts management
+- Typed DTOs for all payloads
+- PHPStan level 9
 
 ## Installation
 
@@ -18,16 +25,14 @@ composer require deinte/scrada-php-sdk
 
 ## Configuration
 
-Set your Scrada credentials (for example in `.env`):
-
-```dotenv
+```env
 SCRADA_API_KEY=your-api-key
 SCRADA_API_SECRET=your-api-secret
 SCRADA_COMPANY_ID=your-company-uuid
-SCRADA_BASE_URL=https://apitest.scrada.be # optional, defaults to production
+SCRADA_BASE_URL=https://apitest.scrada.be  # optional, defaults to production
 ```
 
-## Usage
+## Quick Start
 
 ```php
 use Deinte\ScradaSdk\Scrada;
@@ -36,39 +41,24 @@ $scrada = new Scrada(
     apiKey: $_ENV['SCRADA_API_KEY'],
     apiSecret: $_ENV['SCRADA_API_SECRET'],
     companyId: $_ENV['SCRADA_COMPANY_ID'],
-    baseUrl: $_ENV['SCRADA_BASE_URL'] ?? null,
 );
 
-// Daily receipts
-$paymentMethods = $scrada->dailyReceipts()->getPaymentMethods('journal-id');
-$scrada->dailyReceipts()->addLines('journal-id', [
-    'date' => '2025-06-05',
-    'lines' => [
-        [
-            'lineType' => 1,
-            'vatTypeID' => 'vat-type',
-            'vatPerc' => 21,
-            'amount' => 100,
-        ],
-    ],
-    'paymentMethods' => [
-        ['paymentMethodID' => 'pm-1', 'amount' => 100],
-    ],
-]);
-
-// Sales invoices + Peppol
+// Create a sales invoice
 $invoice = $scrada->salesInvoices()->create([
     'bookYear' => '2025',
     'journal' => 'SALES',
     'number' => '2025-001',
     'creditInvoice' => false,
-    'invoiceDate' => '2025-06-03',
-    'invoiceExpiryDate' => '2025-06-30',
+    'invoiceDate' => '2025-01-15',
+    'invoiceExpiryDate' => '2025-02-15',
+    'totalInclVat' => 121.00,
+    'totalExclVat' => 100.00,
+    'totalVat' => 21.00,
     'customer' => [
         'code' => 'CUST01',
-        'name' => 'Customer',
-        'email' => 'customer@example.com',
+        'name' => 'Acme Corp',
         'vatNumber' => 'BE0123456789',
+        'email' => 'billing@acme.com',
         'address' => [
             'street' => 'Main Street',
             'streetNumber' => '1',
@@ -77,37 +67,26 @@ $invoice = $scrada->salesInvoices()->create([
             'countryCode' => 'BE',
         ],
     ],
-    'totalInclVat' => 121,
-    'totalExclVat' => 100,
-    'totalVat' => 21,
     'lines' => [
         [
-            'description' => 'Service',
+            'description' => 'Consulting services',
             'quantity' => 1,
-            'unitPrice' => 100,
+            'unitPrice' => 100.00,
             'vatPerc' => 21,
-            'vatTypeID' => 'vat-type',
         ],
     ],
 ]);
 
-$status = $scrada->salesInvoices()->getSendStatus($invoice->id ?? 'invoice-id');
-$ubl = $scrada->salesInvoices()->getUbl($invoice->id ?? 'invoice-id');
-$peppol = $scrada->peppol()->lookupParty([
-    'code' => 'CUST01',
-    'name' => 'Customer',
+// Check Peppol send status
+$status = $scrada->salesInvoices()->getSendStatus($invoice->id);
+
+// Lookup Peppol participant
+$participant = $scrada->peppol()->lookupParty([
     'vatNumber' => 'BE0123456789',
-    'email' => 'customer@example.com',
-    'address' => [
-        'street' => 'Main Street',
-        'streetNumber' => '1',
-        'city' => 'Brussels',
-        'zipCode' => '1000',
-        'countryCode' => 'BE',
-    ],
+    'countryCode' => 'BE',
 ]);
 
-// Inbound documents
+// Process inbound documents
 $documents = $scrada->inboundDocuments()->getUnconfirmed();
 foreach ($documents as $document) {
     $pdf = $scrada->inboundDocuments()->getPdf($document->id);
@@ -115,19 +94,18 @@ foreach ($documents as $document) {
 }
 ```
 
-## Testing & Quality
+## Testing
 
 ```bash
-composer test        # Runs Pest + PHPUnit (unit, feature, and architecture tests)
-composer analyse     # PHPStan level 9
-composer format      # Laravel Pint
-composer test-coverage
+composer test      # Run tests
+composer analyse   # PHPStan
+composer format    # Laravel Pint
 ```
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for release details.
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## License
 
-The MIT License (MIT). See [LICENSE.md](LICENSE.md) for details.
+MIT License. See [LICENSE.md](LICENSE.md) for details.
