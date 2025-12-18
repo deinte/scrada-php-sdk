@@ -16,7 +16,8 @@ final class GetUnconfirmedDocumentsRequest extends Request
 
     public function __construct(
         private readonly string $companyId,
-    ) {}
+    ) {
+    }
 
     public function resolveEndpoint(): string
     {

@@ -18,7 +18,8 @@ final readonly class Address
         public string $city,
         public string $zipCode,
         public string $countryCode,
-    ) {}
+    ) {
+    }
 
     /**
      * Hydrate an address from array payloads.

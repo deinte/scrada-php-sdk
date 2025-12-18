@@ -21,7 +21,8 @@ final readonly class PeppolLookupResult
         public bool $supportSelfBillingInvoice,
         public bool $supportSelfBillingCreditInvoice,
         public array $meta = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $data

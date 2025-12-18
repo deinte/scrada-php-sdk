@@ -17,7 +17,8 @@ final class GetPaymentMethodsRequest extends Request
     public function __construct(
         private readonly string $companyId,
         private readonly string $journalId,
-    ) {}
+    ) {
+    }
 
     public function resolveEndpoint(): string
     {
