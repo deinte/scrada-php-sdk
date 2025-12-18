@@ -90,17 +90,17 @@ final class ScradaConnector extends Connector
      */
     private function guardBaseUrl(string $value): string
     {
-        if (str_starts_with($value, 'http') || str_starts_with($value, 'https')) {
+        if (str_starts_with($value, 'https://') || str_starts_with($value, 'http://')) {
             $trimmed = rtrim($value, '/');
 
-            if ($trimmed === '') {
+            if ($trimmed === 'https:/' || $trimmed === 'http:/') {
                 throw new InvalidArgumentException('Base URL cannot be empty after trimming');
             }
 
             return $trimmed;
         }
 
-        throw new InvalidArgumentException('Base URL must start with http or https');
+        throw new InvalidArgumentException('Base URL must start with https:// or http://');
     }
 
     /**

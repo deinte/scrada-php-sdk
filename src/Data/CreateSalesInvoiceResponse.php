@@ -16,8 +16,7 @@ final readonly class CreateSalesInvoiceResponse
         public string $id,
         public string $status,
         public array $raw = [],
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

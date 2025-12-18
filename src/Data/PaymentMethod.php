@@ -17,8 +17,7 @@ final readonly class PaymentMethod
         public string $name,
         public string $type,
         public array $raw = [],
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

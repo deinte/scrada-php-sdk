@@ -1,9 +1,14 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Strict comparison using \\=\\=\\= between non\\-empty\\-string and '' will always evaluate to false\\.$#"
+			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
 			count: 1
-			path: src/Scrada.php
+			path: src/Exceptions/ScradaException.php
+
+		-
+			message: "#^Method Deinte\\\\ScradaSdk\\\\ScradaConnector\\:\\:guardBaseUrl\\(\\) should return non-empty-string but returns string\\.$#"
+			count: 1
+			path: src/ScradaConnector.php
 
 		-
 			message: "#^Call to an undefined method Pest\\\\PendingCalls\\\\TestCall\\:\\:expect\\(\\)\\.$#"

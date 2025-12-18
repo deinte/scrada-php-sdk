@@ -30,17 +30,11 @@ final class Scrada
         string $companyId,
         ?string $baseUrl = null,
     ) {
-        $resolvedBaseUrl = $baseUrl ?? 'https://api.scrada.be';
-
-        if ($resolvedBaseUrl === '') {
-            $resolvedBaseUrl = 'https://api.scrada.be';
-        }
-
         $this->connector = new ScradaConnector(
             apiKey: $apiKey,
             apiSecret: $apiSecret,
             companyId: $companyId,
-            baseUrl: $resolvedBaseUrl,
+            baseUrl: $baseUrl,
         );
     }
 

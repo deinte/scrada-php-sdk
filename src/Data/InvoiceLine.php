@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Deinte\ScradaSdk\Data;
 
+use Deinte\ScradaSdk\Enums\VatType;
+
 /**
  * Represents a sales invoice line.
  *
@@ -11,7 +13,7 @@ namespace Deinte\ScradaSdk\Data;
  * - itemName: Description of the line item
  * - quantity: Quantity of items
  * - itemExclVat: Unit price excluding VAT
- * - vatType: Integer VAT type (1=21%, 2=12%, 3=6%, 4=0%)
+ * - vatType: Integer VAT type (see VatType enum)
  * - vatPercentage: The actual VAT percentage
  * - totalExclVat: Total excluding VAT (quantity * itemExclVat)
  */
@@ -27,56 +29,64 @@ final readonly class InvoiceLine
         public ?float $totalExclVat = null,
         public ?float $totalDiscountExclVat = null,
         public ?float $vatAmount = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
-        $quantity = $data['quantity'] ?? null;
-        $unitPrice = $data['unitPrice'] ?? $data['itemExclVat'] ?? null;
-        $vatPercentage = $data['vatPerc'] ?? $data['vatPercentage'] ?? null;
+        $description = $data['description'] ?? $data['itemName'] ?? '';
+        $quantity = $data['quantity'] ?? 0;
+        $unitPrice = $data['unitPrice'] ?? $data['itemExclVat'] ?? 0;
+        $vatPercentage = $data['vatPerc'] ?? $data['vatPercentage'] ?? 0;
         $vatType = $data['vatType'] ?? $data['vatTypeID'] ?? $data['vatTypeId'] ?? null;
         $lineNumber = $data['lineNumber'] ?? null;
         $totalExclVat = $data['totalExclVat'] ?? null;
         $totalDiscountExclVat = $data['totalDiscountExclVat'] ?? null;
         $vatAmount = $data['vatAmount'] ?? null;
 
-        // Convert vatType to integer, or derive from vatPercentage
+        // Safely cast vatPercentage to float
+        $vatPercentageFloat = is_numeric($vatPercentage) ? (float) $vatPercentage : 0.0;
+
+        // Convert vatType to integer, or derive from vatPercentage using VatType enum
         $vatTypeInt = match (true) {
             is_int($vatType) => $vatType,
             is_numeric($vatType) => (int) $vatType,
-            default => self::vatPercentageToType((float) ($vatPercentage ?? 21)),
+            default => VatType::fromPercentageDomestic($vatPercentageFloat)->value,
         };
 
         return new self(
-            description: is_string($data['description'] ?? $data['itemName'] ?? null) ? ($data['description'] ?? $data['itemName']) : '',
-            quantity: is_float($quantity) || is_int($quantity) ? (float) $quantity : 0.0,
-            unitPrice: is_float($unitPrice) || is_int($unitPrice) ? (float) $unitPrice : 0.0,
-            vatPercentage: is_float($vatPercentage) || is_int($vatPercentage) ? (float) $vatPercentage : 0.0,
+            description: is_string($description) ? $description : '',
+            quantity: is_numeric($quantity) ? (float) $quantity : 0.0,
+            unitPrice: is_numeric($unitPrice) ? (float) $unitPrice : 0.0,
+            vatPercentage: $vatPercentageFloat,
             vatType: $vatTypeInt,
-            lineNumber: is_int($lineNumber) || is_numeric($lineNumber) ? (int) $lineNumber : null,
-            totalExclVat: is_float($totalExclVat) || is_int($totalExclVat) ? (float) $totalExclVat : null,
-            totalDiscountExclVat: is_float($totalDiscountExclVat) || is_int($totalDiscountExclVat) ? (float) $totalDiscountExclVat : null,
-            vatAmount: is_float($vatAmount) || is_int($vatAmount) ? (float) $vatAmount : null,
+            lineNumber: is_numeric($lineNumber) ? (int) $lineNumber : null,
+            totalExclVat: is_numeric($totalExclVat) ? (float) $totalExclVat : null,
+            totalDiscountExclVat: is_numeric($totalDiscountExclVat) ? (float) $totalDiscountExclVat : null,
+            vatAmount: is_numeric($vatAmount) ? (float) $vatAmount : null,
         );
     }
 
     /**
-     * Convert VAT percentage to Scrada vatType integer.
-     * Common Belgian VAT rates: 21%, 12%, 6%, 0%
+     * Convert VAT percentage to vatType for domestic invoices.
+     *
+     * @see VatType::fromPercentageDomestic()
      */
-    public static function vatPercentageToType(float $percentage): int
+    public static function vatPercentageToTypeDomestic(float $percentage): int
     {
-        return match ((int) round($percentage)) {
-            21 => 1,
-            12 => 2,
-            6 => 3,
-            0 => 4,
-            default => 1, // Default to 21% type
-        };
+        return VatType::fromPercentageDomestic($percentage)->value;
+    }
+
+    /**
+     * Convert VAT percentage to vatType for cross-border EU B2B invoices.
+     *
+     * @see VatType::fromPercentageCrossBorderB2B()
+     */
+    public static function vatPercentageToTypeCrossBorder(float $percentage, bool $isService = true): int
+    {
+        return VatType::fromPercentageCrossBorderB2B($percentage, $isService)->value;
     }
 
     /**

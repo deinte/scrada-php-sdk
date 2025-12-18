@@ -36,16 +36,12 @@ final class PeppolResource extends BaseResource
     {
         $body = $payload instanceof Customer ? $payload->toArray() : $payload;
 
-        ray()->send($this->connector->getCompanyId(), $body);
-
         $response = $this->connector->send(new LookupPartyRequest(
             $this->connector->getCompanyId(),
             $body
         ));
 
         $this->throwIfError($response);
-
-        ray()->send($response->status(), $response->ok(), $response->json());
 
         $data = $response->json();
 

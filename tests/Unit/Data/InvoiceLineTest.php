@@ -122,10 +122,18 @@ it('ensures line totals match for Scrada validation', function (): void {
         ->and(round($payload['totalExclVat'] + $payload['vatAmount'], 2))->toBe(182.11);
 });
 
-it('converts vatPercentage to vatType correctly', function (): void {
-    expect(InvoiceLine::vatPercentageToType(21.0))->toBe(1)
-        ->and(InvoiceLine::vatPercentageToType(12.0))->toBe(2)
-        ->and(InvoiceLine::vatPercentageToType(6.0))->toBe(3)
-        ->and(InvoiceLine::vatPercentageToType(0.0))->toBe(4)
-        ->and(InvoiceLine::vatPercentageToType(99.0))->toBe(1); // Default to 21% type
+it('converts vatPercentage to vatType for domestic invoices', function (): void {
+    // VatType::STANDARD = 1, VatType::EXEMPT = 3
+    expect(InvoiceLine::vatPercentageToTypeDomestic(21.0))->toBe(1)   // STANDARD
+        ->and(InvoiceLine::vatPercentageToTypeDomestic(12.0))->toBe(1) // STANDARD (any positive %)
+        ->and(InvoiceLine::vatPercentageToTypeDomestic(6.0))->toBe(1)  // STANDARD (any positive %)
+        ->and(InvoiceLine::vatPercentageToTypeDomestic(0.0))->toBe(3)  // EXEMPT (domestic 0%)
+        ->and(InvoiceLine::vatPercentageToTypeDomestic(99.0))->toBe(1); // STANDARD (any positive %)
+});
+
+it('converts vatPercentage to vatType for cross-border EU B2B invoices', function (): void {
+    // VatType::STANDARD = 1, VatType::ICD_SERVICES_B2B = 4, VatType::ICD_GOODS = 5
+    expect(InvoiceLine::vatPercentageToTypeCrossBorder(21.0))->toBe(1)            // STANDARD
+        ->and(InvoiceLine::vatPercentageToTypeCrossBorder(0.0, true))->toBe(4)    // ICD_SERVICES_B2B
+        ->and(InvoiceLine::vatPercentageToTypeCrossBorder(0.0, false))->toBe(5);  // ICD_GOODS
 });

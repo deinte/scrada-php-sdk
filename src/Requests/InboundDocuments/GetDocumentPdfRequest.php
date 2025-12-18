@@ -17,8 +17,7 @@ final class GetDocumentPdfRequest extends Request
     public function __construct(
         private readonly string $companyId,
         private readonly string $documentId,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

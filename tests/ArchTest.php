@@ -3,11 +3,10 @@
 declare(strict_types=1);
 
 use Deinte\ScradaSdk\Exceptions\ScradaException;
-
-use function Pest\Plugin\Arch\arch;
-
 use Saloon\Http\BaseResource;
 use Saloon\Http\Request;
+
+use function Pest\Plugin\Arch\arch;
 
 arch('all classes are final')
     ->expect('Deinte\ScradaSdk')

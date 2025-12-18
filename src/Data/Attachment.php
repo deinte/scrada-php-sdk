@@ -29,20 +29,32 @@ final readonly class Attachment
 
     /**
      * Create an attachment from a file path.
+     *
+     * @throws \InvalidArgumentException If file does not exist or cannot be read
      */
     public static function fromFile(string $path, ?string $filename = null, ?string $mimeType = null): self
     {
-        $content = file_get_contents($path);
+        if (! file_exists($path) || ! is_file($path)) {
+            throw new \InvalidArgumentException("File not found: {$path}");
+        }
+
+        $realPath = realpath($path);
+
+        if ($realPath === false) {
+            throw new \InvalidArgumentException("Invalid file path: {$path}");
+        }
+
+        $content = file_get_contents($realPath);
 
         if ($content === false) {
             throw new \InvalidArgumentException("Could not read file: {$path}");
         }
 
         return new self(
-            filename: $filename ?? basename($path),
+            filename: $filename ?? basename($realPath),
             base64Data: base64_encode($content),
-            fileType: self::detectFileType($mimeType ?? mime_content_type($path) ?: 'application/pdf'),
-            mimeType: $mimeType ?? mime_content_type($path) ?: 'application/pdf',
+            fileType: self::detectFileType($mimeType ?? mime_content_type($realPath) ?: 'application/pdf'),
+            mimeType: $mimeType ?? mime_content_type($realPath) ?: 'application/pdf',
         );
     }
 

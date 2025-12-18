@@ -14,6 +14,7 @@ class ScradaException extends RuntimeException
 {
     protected ?string $responseBody = null;
 
+    /** @var array<string, mixed>|null */
     protected ?array $responseData = null;
 
     /**
@@ -75,6 +76,9 @@ class ScradaException extends RuntimeException
         return $this->responseBody;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getResponseData(): ?array
     {
         return $this->responseData;
