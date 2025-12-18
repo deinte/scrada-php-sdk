@@ -27,7 +27,8 @@ final readonly class SalesInvoice
         public array $lines,
         public bool $alreadySentToCustomer = false,
         public string $status = 'draft',
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $data

@@ -24,7 +24,8 @@ final class CreateSalesInvoiceRequest extends Request implements HasBody
     public function __construct(
         private readonly string $companyId,
         private readonly array $payload,
-    ) {}
+    ) {
+    }
 
     public function resolveEndpoint(): string
     {

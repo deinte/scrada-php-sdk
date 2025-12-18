@@ -25,7 +25,8 @@ final class AddDailyReceiptLinesRequest extends Request implements HasBody
         private readonly string $companyId,
         private readonly string $journalId,
         private readonly array $payload,
-    ) {}
+    ) {
+    }
 
     public function resolveEndpoint(): string
     {

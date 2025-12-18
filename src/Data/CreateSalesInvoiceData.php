@@ -29,7 +29,8 @@ final readonly class CreateSalesInvoiceData
         public bool $alreadySentToCustomer = false,
         public array $attachments = [],
         public array $paymentMethods = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, mixed>  $data
