@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.0.3 - 2025-12-18
+
+### Changed
+- **BREAKING**: `Customer` constructor signature changed:
+  - Required: `name`, `address`
+  - Optional (nullable): `peppolID`, `code`, `accountingCode`, `languageCode`, `phone`, `email`, `invoiceEmail`, `contact`, `taxNumberType`, `taxNumber`, `vatNumber`, `glnNumber`, `extraIdentifiers`
+  - Previous required fields (`code`, `email`, `vatNumber`) are now optional
+
+### Added
+- `TaxNumberType` enum for tax number identification:
+  - `ENTERPRISE_NUMBER_BE` (1) - Belgian enterprise number (KBO)
+  - `KVK_NL` (2) - Dutch Chamber of Commerce number
+  - `SIRENE_FR` (3) - French SIRENE number
+  - Helper method: `countryCode()`
+- `ExtraIdentifier` DTO for customer extra identifiers (scheme + value pairs)
+- `Customer` fields for complete Peppol party lookup support:
+  - `peppolID` - Peppol network identifier (e.g., "0208:0793904121")
+  - `accountingCode` - Reference key in accounting system
+  - `languageCode` - ISO 639-1 language code (max 2 chars)
+  - `invoiceEmail` - Dedicated invoice email address
+  - `contact` - Contact person name
+  - `taxNumberType` - Type of tax number (`TaxNumberType` enum)
+  - `taxNumber` - Tax number according to taxNumberType
+  - `glnNumber` - Global Location Number
+  - `extraIdentifiers` - Array of `ExtraIdentifier` objects
+- `Address` fields:
+  - `streetBox` - Apartment/unit/box number
+  - `countrySubentity` - State/province/region
+
 ## 0.0.2 - 2025-12-18
 
 ### Changed
