@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Data\Address;
-use Deinte\ScradaSdk\Data\Customer;
-use Deinte\ScradaSdk\Data\InvoiceLine;
-use Deinte\ScradaSdk\Data\SalesInvoice;
+use Deinte\ScradaSdk\Data\Common\Address;
+use Deinte\ScradaSdk\Data\Common\Customer;
+use Deinte\ScradaSdk\Data\SalesInvoice\InvoiceLine;
+use Deinte\ScradaSdk\Data\SalesInvoice\SalesInvoice;
+use Deinte\ScradaSdk\Enums\VatType;
 
 it('converts invoice to array payload', function (): void {
     $invoice = new SalesInvoice(
@@ -24,13 +25,13 @@ it('converts invoice to array payload', function (): void {
             name: 'Customer',
             email: 'customer@example.com',
             vatNumber: 'BE0123456789',
-            address: new Address('Street', '1', 'Brussels', '1000', 'BE')
+            address: new Address('Street', '1', 'Brussels', '1000', 'BE'),
         ),
         lines: [
-            new InvoiceLine('Service', 1, 100.0, 21.0, 1),
+            new InvoiceLine('Service', 1, 100.0, 21.0, VatType::STANDARD),
         ],
         alreadySentToCustomer: true,
-        status: 'queued'
+        status: 'queued',
     );
 
     $payload = $invoice->toArray();
@@ -84,7 +85,6 @@ it('hydrates invoice from response array', function (): void {
                 'quantity' => 1,
                 'unitPrice' => 100,
                 'vatPerc' => 21,
-                'vatTypeID' => 'vat-type',
             ],
         ],
         'status' => 'queued',

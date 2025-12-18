@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Data;
+namespace Deinte\ScradaSdk\Data\SalesInvoice;
 
 /**
  * Response from creating a sales invoice.
@@ -10,7 +10,7 @@ namespace Deinte\ScradaSdk\Data;
 final readonly class CreateSalesInvoiceResponse
 {
     /**
-     * @param  array<string, mixed>  $raw
+     * @param  array<string, mixed>  $raw  The raw response data for forward compatibility
      */
     public function __construct(
         public string $id,
@@ -27,7 +27,7 @@ final readonly class CreateSalesInvoiceResponse
         return new self(
             id: is_string($data['id'] ?? null) ? $data['id'] : '',
             status: is_string($data['status'] ?? null) ? $data['status'] : 'draft',
-            raw: $data
+            raw: $data,
         );
     }
 

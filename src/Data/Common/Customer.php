@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Data;
+namespace Deinte\ScradaSdk\Data\Common;
 
 /**
  * Represents a Scrada customer entity.
- *
- * Example:
- * Customer::fromArray(['code' => 'CUST01', 'customerName' => 'ACME']);
  */
 final readonly class Customer
 {
@@ -23,8 +20,6 @@ final readonly class Customer
     }
 
     /**
-     * Hydrate a customer from array data.
-     *
      * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
@@ -39,13 +34,11 @@ final readonly class Customer
             email: is_string($data['email'] ?? null) ? $data['email'] : '',
             vatNumber: is_string($data['vatNumber'] ?? null) ? $data['vatNumber'] : '',
             address: Address::fromArray(is_array($address) ? $address : []),
-            phone: is_string($phone) ? $phone : null
+            phone: is_string($phone) ? $phone : null,
         );
     }
 
     /**
-     * Convert the customer to an API-ready array.
-     *
      * @return array<string, mixed>
      */
     public function toArray(): array

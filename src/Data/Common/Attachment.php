@@ -2,25 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Data;
+namespace Deinte\ScradaSdk\Data\Common;
+
+use Deinte\ScradaSdk\Enums\FileType;
 
 /**
  * Represents an invoice attachment.
- *
- * Field mappings match the Scrada API:
- * - filename: Name of the file
- * - fileType: Integer file type (1=PDF, 2=Image, etc.)
- * - mimeType: MIME type of the file
- * - base64Data: Base64 encoded file content
- * - note: Optional note about the attachment
- * - externalReference: Optional external reference
  */
 final readonly class Attachment
 {
     public function __construct(
         public string $filename,
         public string $base64Data,
-        public int $fileType = 1,
+        public FileType $fileType = FileType::PDF,
         public string $mimeType = 'application/pdf',
         public ?string $note = null,
         public ?string $externalReference = null,
@@ -50,11 +44,13 @@ final readonly class Attachment
             throw new \InvalidArgumentException("Could not read file: {$path}");
         }
 
+        $detectedMimeType = $mimeType ?? mime_content_type($realPath) ?: 'application/pdf';
+
         return new self(
             filename: $filename ?? basename($realPath),
             base64Data: base64_encode($content),
-            fileType: self::detectFileType($mimeType ?? mime_content_type($realPath) ?: 'application/pdf'),
-            mimeType: $mimeType ?? mime_content_type($realPath) ?: 'application/pdf',
+            fileType: FileType::fromMimeType($detectedMimeType),
+            mimeType: $detectedMimeType,
         );
     }
 
@@ -66,7 +62,7 @@ final readonly class Attachment
         return new self(
             filename: $filename,
             base64Data: $base64Data,
-            fileType: 1,
+            fileType: FileType::PDF,
             mimeType: 'application/pdf',
         );
     }
@@ -76,27 +72,19 @@ final readonly class Attachment
      */
     public static function fromArray(array $data): self
     {
+        $fileTypeValue = $data['fileType'] ?? 1;
+        $fileType = is_int($fileTypeValue)
+            ? (FileType::tryFrom($fileTypeValue) ?? FileType::PDF)
+            : FileType::PDF;
+
         return new self(
             filename: is_string($data['filename'] ?? null) ? $data['filename'] : '',
             base64Data: is_string($data['base64Data'] ?? null) ? $data['base64Data'] : '',
-            fileType: is_int($data['fileType'] ?? null) ? $data['fileType'] : 1,
+            fileType: $fileType,
             mimeType: is_string($data['mimeType'] ?? null) ? $data['mimeType'] : 'application/pdf',
-            note: is_string($data['note'] ?? null) ? $data['note'] : null,
-            externalReference: is_string($data['externalReference'] ?? null) ? $data['externalReference'] : null,
+            note: isset($data['note']) && is_string($data['note']) ? $data['note'] : null,
+            externalReference: isset($data['externalReference']) && is_string($data['externalReference']) ? $data['externalReference'] : null,
         );
-    }
-
-    /**
-     * Detect file type integer from MIME type.
-     */
-    private static function detectFileType(string $mimeType): int
-    {
-        return match (true) {
-            str_contains($mimeType, 'pdf') => 1,
-            str_contains($mimeType, 'image') => 2,
-            str_contains($mimeType, 'xml') => 3,
-            default => 1,
-        };
     }
 
     /**
@@ -106,7 +94,7 @@ final readonly class Attachment
     {
         $payload = [
             'filename' => $this->filename,
-            'fileType' => $this->fileType,
+            'fileType' => $this->fileType->value,
             'mimeType' => $this->mimeType,
             'base64Data' => $this->base64Data,
         ];

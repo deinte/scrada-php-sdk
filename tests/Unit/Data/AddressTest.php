@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Data\Address;
+use Deinte\ScradaSdk\Data\Common\Address;
 
 it('creates address from array', function (): void {
     $address = Address::fromArray([

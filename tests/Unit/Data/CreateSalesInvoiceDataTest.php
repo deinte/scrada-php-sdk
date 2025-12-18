@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Deinte\ScradaSdk\Data\Address;
-use Deinte\ScradaSdk\Data\CreateSalesInvoiceData;
-use Deinte\ScradaSdk\Data\Customer;
-use Deinte\ScradaSdk\Data\InvoiceLine;
+use Deinte\ScradaSdk\Data\Common\Address;
+use Deinte\ScradaSdk\Data\Common\Customer;
+use Deinte\ScradaSdk\Data\SalesInvoice\CreateSalesInvoiceData;
+use Deinte\ScradaSdk\Data\SalesInvoice\InvoiceLine;
 
 it('creates request data from array', function (): void {
     $data = [
@@ -37,7 +37,6 @@ it('creates request data from array', function (): void {
                 'quantity' => 1,
                 'unitPrice' => 100.0,
                 'vatPerc' => 21.0,
-                'vatTypeID' => 'vat-type',
             ],
         ],
         'alreadySentToCustomer' => true,
@@ -69,10 +68,10 @@ it('converts request data to array payload', function (): void {
             name: 'Customer',
             email: 'customer@example.com',
             vatNumber: 'BE0123456789',
-            address: new Address('Street', '1', 'Brussels', '1000', 'BE')
+            address: new Address('Street', '1', 'Brussels', '1000', 'BE'),
         ),
         lines: [
-            new InvoiceLine('Service', 1, 100.0, 21.0, 1),
+            new InvoiceLine('Service', 1, 100.0, 21.0),
         ],
         alreadySentToCustomer: true,
     );

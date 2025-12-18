@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Data;
+namespace Deinte\ScradaSdk\Data\SalesInvoice;
+
+use Deinte\ScradaSdk\Data\Common\Attachment;
+use Deinte\ScradaSdk\Data\Common\Customer;
 
 /**
  * Request data for creating a sales invoice.
@@ -12,7 +15,7 @@ final readonly class CreateSalesInvoiceData
     /**
      * @param  array<int, InvoiceLine>  $lines
      * @param  array<int, Attachment>  $attachments
-     * @param  array<int, array{paymentType: int, name: string, totalPaid?: float, totalToPay?: float}>  $paymentMethods
+     * @param  array<int, InvoicePaymentMethod>  $paymentMethods
      */
     public function __construct(
         public string $bookYear,
@@ -29,6 +32,8 @@ final readonly class CreateSalesInvoiceData
         public bool $alreadySentToCustomer = false,
         public array $attachments = [],
         public array $paymentMethods = [],
+        public ?float $payableRoundingAmount = null,
+        public ?string $note = null,
     ) {
     }
 
@@ -41,21 +46,20 @@ final readonly class CreateSalesInvoiceData
             static fn (array $line): InvoiceLine => InvoiceLine::fromArray($line),
             array_values(array_filter(
                 array: is_array($data['lines'] ?? null) ? $data['lines'] : [],
-                callback: static fn (mixed $line): bool => is_array($line)
-            ))
+                callback: static fn (mixed $line): bool => is_array($line),
+            )),
         );
 
         $customerData = $data['customer'] ?? [];
         /** @var array<string, mixed> $customerArray */
         $customerArray = is_array($customerData) ? $customerData : [];
 
-        // Parse attachments array
         $attachments = array_map(
             static fn (array $attachment): Attachment => Attachment::fromArray($attachment),
             array_values(array_filter(
                 array: is_array($data['attachments'] ?? null) ? $data['attachments'] : [],
-                callback: static fn (mixed $attachment): bool => is_array($attachment)
-            ))
+                callback: static fn (mixed $attachment): bool => is_array($attachment),
+            )),
         );
 
         // Support legacy single PDF attachment format
@@ -68,11 +72,13 @@ final readonly class CreateSalesInvoiceData
             ];
         }
 
-        /** @var array<int, array{paymentType: int, name: string, totalPaid?: float, totalToPay?: float}> $paymentMethods */
-        $paymentMethods = array_values(array_filter(
-            array: is_array($data['paymentMethods'] ?? null) ? $data['paymentMethods'] : [],
-            callback: static fn (mixed $method): bool => is_array($method)
-        ));
+        $paymentMethods = array_map(
+            static fn (array $method): InvoicePaymentMethod => InvoicePaymentMethod::fromArray($method),
+            array_values(array_filter(
+                array: is_array($data['paymentMethods'] ?? null) ? $data['paymentMethods'] : [],
+                callback: static fn (mixed $method): bool => is_array($method),
+            )),
+        );
 
         return new self(
             bookYear: is_string($data['bookYear'] ?? null) ? $data['bookYear'] : '',
@@ -81,14 +87,16 @@ final readonly class CreateSalesInvoiceData
             creditInvoice: (bool) ($data['creditInvoice'] ?? false),
             invoiceDate: is_string($data['invoiceDate'] ?? null) ? $data['invoiceDate'] : '',
             invoiceExpiryDate: is_string($data['invoiceExpiryDate'] ?? null) ? $data['invoiceExpiryDate'] : '',
-            totalInclVat: is_float($data['totalInclVat'] ?? null) || is_int($data['totalInclVat'] ?? null) ? (float) $data['totalInclVat'] : 0.0,
-            totalExclVat: is_float($data['totalExclVat'] ?? null) || is_int($data['totalExclVat'] ?? null) ? (float) $data['totalExclVat'] : 0.0,
-            totalVat: is_float($data['totalVat'] ?? null) || is_int($data['totalVat'] ?? null) ? (float) $data['totalVat'] : 0.0,
+            totalInclVat: is_numeric($data['totalInclVat'] ?? null) ? (float) $data['totalInclVat'] : 0.0,
+            totalExclVat: is_numeric($data['totalExclVat'] ?? null) ? (float) $data['totalExclVat'] : 0.0,
+            totalVat: is_numeric($data['totalVat'] ?? null) ? (float) $data['totalVat'] : 0.0,
             customer: Customer::fromArray($customerArray),
             lines: $lines,
             alreadySentToCustomer: (bool) ($data['alreadySendToCustomer'] ?? ($data['alreadySentToCustomer'] ?? false)),
             attachments: $attachments,
             paymentMethods: $paymentMethods,
+            payableRoundingAmount: isset($data['payableRoundingAmount']) && is_numeric($data['payableRoundingAmount']) ? (float) $data['payableRoundingAmount'] : null,
+            note: isset($data['note']) && is_string($data['note']) ? $data['note'] : null,
         );
     }
 
@@ -122,6 +130,8 @@ final readonly class CreateSalesInvoiceData
             alreadySentToCustomer: $this->alreadySentToCustomer,
             attachments: [...$this->attachments, $attachment],
             paymentMethods: $this->paymentMethods,
+            payableRoundingAmount: $this->payableRoundingAmount,
+            note: $this->note,
         );
     }
 
@@ -142,10 +152,9 @@ final readonly class CreateSalesInvoiceData
     {
         $lines = array_map(
             static fn (InvoiceLine $line): array => $line->toArray(),
-            $this->lines
+            $this->lines,
         );
 
-        // Build VAT totals grouped by VAT percentage (required by Scrada)
         $vatTotals = $this->buildVatTotals();
 
         $payload = [
@@ -164,17 +173,26 @@ final readonly class CreateSalesInvoiceData
             'alreadySendToCustomer' => $this->alreadySentToCustomer,
         ];
 
-        // Add attachments if present
+        if ($this->payableRoundingAmount !== null) {
+            $payload['payableRoundingAmount'] = round($this->payableRoundingAmount, 2);
+        }
+
+        if ($this->note !== null) {
+            $payload['note'] = $this->note;
+        }
+
         if ($this->hasAttachments()) {
             $payload['attachments'] = array_map(
                 static fn (Attachment $attachment): array => $attachment->toArray(),
-                $this->attachments
+                $this->attachments,
             );
         }
 
-        // Add payment methods if present (marks invoice as paid)
         if ($this->hasPaymentMethods()) {
-            $payload['paymentMethods'] = $this->paymentMethods;
+            $payload['paymentMethods'] = array_map(
+                static fn (InvoicePaymentMethod $method): array => $method->toArray(),
+                $this->paymentMethods,
+            );
         }
 
         return $payload;
@@ -182,13 +200,6 @@ final readonly class CreateSalesInvoiceData
 
     /**
      * Build VAT totals grouped by VAT percentage.
-     *
-     * Scrada expects the following fields in vatTotals:
-     * - vatType: int (1=21%, 2=12%, 3=6%, 4=0%)
-     * - vatPercentage: float
-     * - totalExclVat: float
-     * - totalVat: float (NOT vatAmount!)
-     * - totalInclVat: float
      *
      * @return array<int, array{vatType: int, vatPercentage: float, totalExclVat: float, totalVat: float, totalInclVat: float}>
      */
@@ -202,7 +213,7 @@ final readonly class CreateSalesInvoiceData
 
             if (! isset($totals[$key])) {
                 $totals[$key] = [
-                    'vatType' => $line->vatType,
+                    'vatType' => $line->vatType->value,
                     'vatPercentage' => $vatPercentage,
                     'totalExclVat' => 0.0,
                     'totalVat' => 0.0,
@@ -218,7 +229,6 @@ final readonly class CreateSalesInvoiceData
             $totals[$key]['totalInclVat'] += ($lineTotal + $lineVat);
         }
 
-        // Round the totals and return as indexed array
         return array_values(array_map(function (array $total): array {
             return [
                 'vatType' => $total['vatType'],

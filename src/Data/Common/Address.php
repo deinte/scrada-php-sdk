@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Data;
+namespace Deinte\ScradaSdk\Data\Common;
 
 /**
  * Postal address used throughout the Scrada API.
- *
- * Example:
- * Address::fromArray(['street' => 'Main', 'city' => 'Brussels']);
  */
 final readonly class Address
 {
@@ -22,8 +19,6 @@ final readonly class Address
     }
 
     /**
-     * Hydrate an address from array payloads.
-     *
      * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
@@ -33,13 +28,11 @@ final readonly class Address
             streetNumber: is_string($data['streetNumber'] ?? null) ? $data['streetNumber'] : '',
             city: is_string($data['city'] ?? null) ? $data['city'] : '',
             zipCode: is_string($data['zipCode'] ?? null) ? $data['zipCode'] : '',
-            countryCode: is_string($data['countryCode'] ?? null) ? $data['countryCode'] : ''
+            countryCode: is_string($data['countryCode'] ?? null) ? $data['countryCode'] : '',
         );
     }
 
     /**
-     * Convert the address to a request-ready array.
-     *
      * @return array<string, string>
      */
     public function toArray(): array

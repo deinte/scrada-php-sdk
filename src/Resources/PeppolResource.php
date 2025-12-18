@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Deinte\ScradaSdk\Resources;
 
-use Deinte\ScradaSdk\Data\Customer;
+use Deinte\ScradaSdk\Data\Common\Customer;
 use Deinte\ScradaSdk\Data\PeppolLookupResult;
 use Deinte\ScradaSdk\Exceptions\AuthenticationException;
 use Deinte\ScradaSdk\Exceptions\ScradaException;
@@ -26,19 +26,15 @@ final class PeppolResource extends BaseResource
     /**
      * Perform a Peppol lookup for a customer.
      *
-     * @param  array<string, mixed>|Customer  $payload
-     *
      * @throws AuthenticationException
      * @throws ValidationException
      * @throws ScradaException
      */
-    public function lookupParty(array|Customer $payload): PeppolLookupResult
+    public function lookupParty(Customer $customer): PeppolLookupResult
     {
-        $body = $payload instanceof Customer ? $payload->toArray() : $payload;
-
         $response = $this->connector->send(new LookupPartyRequest(
             $this->connector->getCompanyId(),
-            $body
+            $customer->toArray(),
         ));
 
         $this->throwIfError($response);

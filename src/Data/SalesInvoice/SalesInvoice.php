@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Deinte\ScradaSdk\Data;
+namespace Deinte\ScradaSdk\Data\SalesInvoice;
+
+use Deinte\ScradaSdk\Data\Common\Customer;
 
 /**
- * Represents a Scrada sales invoice.
+ * Represents a Scrada sales invoice (response object).
  */
 final readonly class SalesInvoice
 {
@@ -39,8 +41,8 @@ final readonly class SalesInvoice
             static fn (array $line): InvoiceLine => InvoiceLine::fromArray($line),
             array_values(array_filter(
                 array: is_array($data['lines'] ?? null) ? $data['lines'] : [],
-                callback: static fn (mixed $line): bool => is_array($line)
-            ))
+                callback: static fn (mixed $line): bool => is_array($line),
+            )),
         );
 
         $id = $data['id'] ?? null;
@@ -58,19 +60,17 @@ final readonly class SalesInvoice
             creditInvoice: (bool) ($data['creditInvoice'] ?? false),
             invoiceDate: is_string($data['invoiceDate'] ?? null) ? $data['invoiceDate'] : '',
             invoiceExpiryDate: is_string($data['invoiceExpiryDate'] ?? null) ? $data['invoiceExpiryDate'] : '',
-            totalInclVat: is_float($totalInclVat) || is_int($totalInclVat) ? (float) $totalInclVat : 0.0,
-            totalExclVat: is_float($totalExclVat) || is_int($totalExclVat) ? (float) $totalExclVat : 0.0,
-            totalVat: is_float($totalVat) || is_int($totalVat) ? (float) $totalVat : 0.0,
+            totalInclVat: is_numeric($totalInclVat) ? (float) $totalInclVat : 0.0,
+            totalExclVat: is_numeric($totalExclVat) ? (float) $totalExclVat : 0.0,
+            totalVat: is_numeric($totalVat) ? (float) $totalVat : 0.0,
             customer: Customer::fromArray(is_array($customer) ? $customer : []),
             lines: $lines,
             alreadySentToCustomer: (bool) $alreadySent,
-            status: is_string($data['status'] ?? null) ? $data['status'] : 'draft'
+            status: is_string($data['status'] ?? null) ? $data['status'] : 'draft',
         );
     }
 
     /**
-     * Convert the invoice to an API payload.
-     *
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -88,7 +88,7 @@ final readonly class SalesInvoice
             'totalVat' => $this->totalVat,
             'lines' => array_map(
                 static fn (InvoiceLine $line): array => $line->toArray(),
-                $this->lines
+                $this->lines,
             ),
             'alreadySendToCustomer' => $this->alreadySentToCustomer,
         ];
