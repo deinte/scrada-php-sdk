@@ -12,8 +12,7 @@ final readonly class ExtraIdentifier
     public function __construct(
         public ?string $scheme = null,
         public ?string $value = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
