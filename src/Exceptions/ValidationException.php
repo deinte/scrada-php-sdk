@@ -49,7 +49,7 @@ final class ValidationException extends ScradaException
         if ($data === null) {
             $body = $response->body();
             if ($body !== '') {
-                $truncated = strlen($body) > 200 ? substr($body, 0, 200) . '...' : $body;
+                $truncated = strlen($body) > 200 ? substr($body, 0, 200).'...' : $body;
                 $message = "Validation failed (invalid JSON response). Body: {$truncated}";
             }
         }

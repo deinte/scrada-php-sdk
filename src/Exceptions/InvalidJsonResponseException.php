@@ -65,7 +65,7 @@ final class InvalidJsonResponseException extends ScradaException
         if ($body === '') {
             $parts[] = 'Response body: (empty)';
         } else {
-            $preview = strlen($body) > 300 ? substr($body, 0, 300) . '...' : $body;
+            $preview = strlen($body) > 300 ? substr($body, 0, 300).'...' : $body;
             // Escape newlines for single-line logging
             $preview = str_replace(["\r\n", "\r", "\n"], ' ', $preview);
             $parts[] = "Response body: {$preview}";

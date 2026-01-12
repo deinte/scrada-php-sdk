@@ -54,7 +54,7 @@ class ScradaException extends RuntimeException
 
         // If still unknown and we have a body, include truncated body for debugging
         if ($message === 'Unknown Scrada API error' && $body !== '') {
-            $truncated = strlen($body) > 200 ? substr($body, 0, 200) . '...' : $body;
+            $truncated = strlen($body) > 200 ? substr($body, 0, 200).'...' : $body;
             $message = "Unknown error. Response: {$truncated}";
         }
 
