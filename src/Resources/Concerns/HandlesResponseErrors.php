@@ -6,9 +6,11 @@ namespace Deinte\ScradaSdk\Resources\Concerns;
 
 use Closure;
 use Deinte\ScradaSdk\Exceptions\AuthenticationException;
+use Deinte\ScradaSdk\Exceptions\InvalidJsonResponseException;
 use Deinte\ScradaSdk\Exceptions\NotFoundException;
 use Deinte\ScradaSdk\Exceptions\ScradaException;
 use Deinte\ScradaSdk\Exceptions\ValidationException;
+use JsonException;
 use Saloon\Http\Response;
 
 /**
@@ -37,6 +39,24 @@ trait HandlesResponseErrors
 
         if ($response->failed()) {
             throw ScradaException::fromResponse($response);
+        }
+    }
+
+    /**
+     * Safely parse JSON from response, throwing a descriptive exception on failure.
+     *
+     * @return array<string, mixed>|null
+     *
+     * @throws InvalidJsonResponseException
+     */
+    private function safeJson(Response $response): ?array
+    {
+        try {
+            $data = $response->json();
+
+            return is_array($data) ? $data : null;
+        } catch (JsonException $e) {
+            throw InvalidJsonResponseException::fromJsonError($response, $e);
         }
     }
 }

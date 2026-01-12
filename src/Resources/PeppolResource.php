@@ -39,9 +39,9 @@ final class PeppolResource extends BaseResource
 
         $this->throwIfError($response);
 
-        $data = $response->json();
+        $data = $this->safeJson($response);
 
-        if (! is_array($data)) {
+        if ($data === null) {
             return new PeppolLookupResult(false, false, false, false, false);
         }
 

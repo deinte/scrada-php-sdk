@@ -74,9 +74,9 @@ final class SalesInvoiceResource extends BaseResource
 
         $this->throwIfError($response, $this->notFoundFactory('Sales invoice', $invoiceId));
 
-        $data = $response->json();
+        $data = $this->safeJson($response);
 
-        if (! is_array($data)) {
+        if ($data === null) {
             return SendStatusResponse::fromArray([]);
         }
 
