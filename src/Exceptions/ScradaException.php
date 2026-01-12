@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Deinte\ScradaSdk\Exceptions;
 
+use JsonException;
 use RuntimeException;
 use Saloon\Http\Response;
 
@@ -23,7 +24,7 @@ class ScradaException extends RuntimeException
     public static function fromResponse(Response $response): self
     {
         $body = $response->body();
-        $data = $response->json();
+        $data = self::safeParseJson($response);
         $message = 'Unknown Scrada API error';
 
         // Try multiple common error field names
@@ -40,11 +41,10 @@ class ScradaException extends RuntimeException
             if (isset($data['errors']) && is_array($data['errors'])) {
                 $errors = [];
                 foreach ($data['errors'] as $field => $fieldErrors) {
-                    if (is_array($fieldErrors)) {
-                        $errors[] = "{$field}: ".implode(', ', $fieldErrors);
-                    } elseif (is_string($fieldErrors)) {
-                        $errors[] = "{$field}: {$fieldErrors}";
-                    }
+                    $errorString = is_array($fieldErrors)
+                        ? implode(', ', $fieldErrors)
+                        : (string) $fieldErrors;
+                    $errors[] = "{$field}: {$errorString}";
                 }
                 if ($errors !== []) {
                     $message = implode('; ', $errors);
@@ -54,15 +54,12 @@ class ScradaException extends RuntimeException
 
         // If still unknown and we have a body, include truncated body for debugging
         if ($message === 'Unknown Scrada API error' && $body !== '') {
-            $truncatedBody = strlen($body) > 200 ? substr($body, 0, 200).'...' : $body;
-            $message = "Unknown error. Response: {$truncatedBody}";
+            $truncated = strlen($body) > 200 ? substr($body, 0, 200) . '...' : $body;
+            $message = "Unknown error. Response: {$truncated}";
         }
 
-        $fullMessage = sprintf(
-            'Scrada API error: %s (HTTP %d)',
-            $message,
-            $response->status()
-        );
+        $status = $response->status();
+        $fullMessage = "Scrada API error: {$message} (HTTP {$status})";
 
         $exception = new self($fullMessage, $response->status());
         $exception->responseBody = $body;
@@ -82,5 +79,21 @@ class ScradaException extends RuntimeException
     public function getResponseData(): ?array
     {
         return $this->responseData;
+    }
+
+    /**
+     * Safely parse JSON from a response, returning null on failure.
+     *
+     * @return array<string, mixed>|null
+     */
+    protected static function safeParseJson(Response $response): ?array
+    {
+        try {
+            $data = $response->json();
+
+            return is_array($data) ? $data : null;
+        } catch (JsonException) {
+            return null;
+        }
     }
 }

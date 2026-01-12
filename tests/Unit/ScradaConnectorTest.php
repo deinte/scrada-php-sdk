@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Deinte\ScradaSdk\ScradaConnector;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class ScradaConnectorTest extends TestCase

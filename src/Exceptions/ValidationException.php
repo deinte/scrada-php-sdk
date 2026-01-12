@@ -37,12 +37,21 @@ final class ValidationException extends ScradaException
      */
     public static function fromResponse(Response $response): self
     {
-        $data = $response->json();
+        $data = self::safeParseJson($response);
         $message = 'Validation failed';
         $errors = [];
 
         if (is_array($data) && isset($data['message']) && is_string($data['message'])) {
             $message = $data['message'];
+        }
+
+        // If we couldn't parse JSON, include the raw body in the message
+        if ($data === null) {
+            $body = $response->body();
+            if ($body !== '') {
+                $truncated = strlen($body) > 200 ? substr($body, 0, 200) . '...' : $body;
+                $message = "Validation failed (invalid JSON response). Body: {$truncated}";
+            }
         }
 
         if (is_array($data) && isset($data['errors']) && is_array($data['errors'])) {
