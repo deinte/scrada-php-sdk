@@ -34,6 +34,9 @@ final readonly class CreateSalesInvoiceData
         public array $paymentMethods = [],
         public ?float $payableRoundingAmount = null,
         public ?string $note = null,
+        public ?string $purchaseOrderReference = null,
+        public ?string $projectReference = null,
+        public ?string $salesOrderReference = null,
     ) {}
 
     /**
@@ -96,6 +99,9 @@ final readonly class CreateSalesInvoiceData
             paymentMethods: $paymentMethods,
             payableRoundingAmount: isset($data['payableRoundingAmount']) && is_numeric($data['payableRoundingAmount']) ? (float) $data['payableRoundingAmount'] : null,
             note: isset($data['note']) && is_string($data['note']) ? $data['note'] : null,
+            purchaseOrderReference: isset($data['purchaseOrderReference']) && is_string($data['purchaseOrderReference']) ? $data['purchaseOrderReference'] : null,
+            projectReference: isset($data['projectReference']) && is_string($data['projectReference']) ? $data['projectReference'] : null,
+            salesOrderReference: isset($data['salesOrderReference']) && is_string($data['salesOrderReference']) ? $data['salesOrderReference'] : null,
         );
     }
 
@@ -131,6 +137,9 @@ final readonly class CreateSalesInvoiceData
             paymentMethods: $this->paymentMethods,
             payableRoundingAmount: $this->payableRoundingAmount,
             note: $this->note,
+            purchaseOrderReference: $this->purchaseOrderReference,
+            projectReference: $this->projectReference,
+            salesOrderReference: $this->salesOrderReference,
         );
     }
 
@@ -192,6 +201,18 @@ final readonly class CreateSalesInvoiceData
                 static fn (InvoicePaymentMethod $method): array => $method->toArray(),
                 $this->paymentMethods,
             );
+        }
+
+        if ($this->purchaseOrderReference !== null) {
+            $payload['purchaseOrderReference'] = $this->purchaseOrderReference;
+        }
+
+        if ($this->projectReference !== null) {
+            $payload['projectReference'] = $this->projectReference;
+        }
+
+        if ($this->salesOrderReference !== null) {
+            $payload['salesOrderReference'] = $this->salesOrderReference;
         }
 
         return $payload;
