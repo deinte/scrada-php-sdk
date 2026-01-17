@@ -37,6 +37,12 @@ final readonly class CreateSalesInvoiceData
         public ?string $purchaseOrderReference = null,
         public ?string $projectReference = null,
         public ?string $salesOrderReference = null,
+        public ?string $deliveryDate = null,
+        public ?string $deliveryStreet = null,
+        public ?string $deliveryStreetNumber = null,
+        public ?string $deliveryCity = null,
+        public ?string $deliveryZipCode = null,
+        public ?string $deliveryCountryCode = null,
     ) {}
 
     /**
@@ -102,6 +108,12 @@ final readonly class CreateSalesInvoiceData
             purchaseOrderReference: isset($data['purchaseOrderReference']) && is_string($data['purchaseOrderReference']) ? $data['purchaseOrderReference'] : null,
             projectReference: isset($data['projectReference']) && is_string($data['projectReference']) ? $data['projectReference'] : null,
             salesOrderReference: isset($data['salesOrderReference']) && is_string($data['salesOrderReference']) ? $data['salesOrderReference'] : null,
+            deliveryDate: isset($data['deliveryDate']) && is_string($data['deliveryDate']) ? $data['deliveryDate'] : null,
+            deliveryStreet: isset($data['deliveryStreet']) && is_string($data['deliveryStreet']) ? $data['deliveryStreet'] : null,
+            deliveryStreetNumber: isset($data['deliveryStreetNumber']) && is_string($data['deliveryStreetNumber']) ? $data['deliveryStreetNumber'] : null,
+            deliveryCity: isset($data['deliveryCity']) && is_string($data['deliveryCity']) ? $data['deliveryCity'] : null,
+            deliveryZipCode: isset($data['deliveryZipCode']) && is_string($data['deliveryZipCode']) ? $data['deliveryZipCode'] : null,
+            deliveryCountryCode: isset($data['deliveryCountryCode']) && is_string($data['deliveryCountryCode']) ? $data['deliveryCountryCode'] : null,
         );
     }
 
@@ -140,6 +152,12 @@ final readonly class CreateSalesInvoiceData
             purchaseOrderReference: $this->purchaseOrderReference,
             projectReference: $this->projectReference,
             salesOrderReference: $this->salesOrderReference,
+            deliveryDate: $this->deliveryDate,
+            deliveryStreet: $this->deliveryStreet,
+            deliveryStreetNumber: $this->deliveryStreetNumber,
+            deliveryCity: $this->deliveryCity,
+            deliveryZipCode: $this->deliveryZipCode,
+            deliveryCountryCode: $this->deliveryCountryCode,
         );
     }
 
@@ -215,13 +233,38 @@ final readonly class CreateSalesInvoiceData
             $payload['salesOrderReference'] = $this->salesOrderReference;
         }
 
+        // Add delivery information if provided (for Event invoices / Peppol e-invoicing)
+        if ($this->deliveryDate !== null) {
+            $payload['deliveryDate'] = $this->deliveryDate;
+        }
+
+        if ($this->deliveryStreet !== null) {
+            $payload['deliveryStreet'] = $this->deliveryStreet;
+        }
+
+        if ($this->deliveryStreetNumber !== null) {
+            $payload['deliveryStreetNumber'] = $this->deliveryStreetNumber;
+        }
+
+        if ($this->deliveryCity !== null) {
+            $payload['deliveryCity'] = $this->deliveryCity;
+        }
+
+        if ($this->deliveryZipCode !== null) {
+            $payload['deliveryZipCode'] = $this->deliveryZipCode;
+        }
+
+        if ($this->deliveryCountryCode !== null) {
+            $payload['deliveryCountryCode'] = $this->deliveryCountryCode;
+        }
+
         return $payload;
     }
 
     /**
      * Build VAT totals grouped by VAT percentage.
      *
-     * @return array<int, array{vatType: int, vatPercentage: float, totalExclVat: float, totalVat: float, totalInclVat: float}>
+     * @return array<int, array<string, mixed>>
      */
     private function buildVatTotals(): array
     {
@@ -233,6 +276,7 @@ final readonly class CreateSalesInvoiceData
 
             if (! isset($totals[$key])) {
                 $totals[$key] = [
+                    'vatTypeID' => $line->vatTypeID,
                     'vatType' => $line->vatType->value,
                     'vatPercentage' => $vatPercentage,
                     'totalExclVat' => 0.0,
@@ -250,13 +294,21 @@ final readonly class CreateSalesInvoiceData
         }
 
         return array_values(array_map(function (array $total): array {
-            return [
-                'vatType' => $total['vatType'],
+            $result = [
                 'vatPercentage' => round($total['vatPercentage'], 2),
                 'totalExclVat' => round($total['totalExclVat'], 2),
                 'totalVat' => round($total['totalVat'], 2),
                 'totalInclVat' => round($total['totalInclVat'], 2),
             ];
+
+            // Use vatTypeID (UUID) if available, otherwise fall back to vatType (integer)
+            if ($total['vatTypeID'] !== null) {
+                $result['vatTypeID'] = $total['vatTypeID'];
+            } else {
+                $result['vatType'] = $total['vatType'];
+            }
+
+            return $result;
         }, $totals));
     }
 }

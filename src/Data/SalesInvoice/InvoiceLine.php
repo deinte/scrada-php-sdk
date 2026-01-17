@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Deinte\ScradaSdk\Data\SalesInvoice;
 
+use Deinte\ScradaSdk\Data\VatTypeId;
 use Deinte\ScradaSdk\Enums\UnitType;
 use Deinte\ScradaSdk\Enums\VatType;
 
@@ -23,6 +24,7 @@ final readonly class InvoiceLine
         public ?float $totalExclVat = null,
         public ?float $totalDiscountExclVat = null,
         public ?float $vatAmount = null,
+        public ?string $vatTypeID = null,
     ) {}
 
     /**
@@ -34,7 +36,8 @@ final readonly class InvoiceLine
         $quantity = $data['quantity'] ?? 0;
         $unitPrice = $data['unitPrice'] ?? $data['itemExclVat'] ?? 0;
         $vatPercentage = $data['vatPerc'] ?? $data['vatPercentage'] ?? 0;
-        $vatTypeValue = $data['vatType'] ?? $data['vatTypeID'] ?? $data['vatTypeId'] ?? null;
+        $vatTypeValue = $data['vatType'] ?? null;
+        $vatTypeID = $data['vatTypeID'] ?? $data['vatTypeId'] ?? null;
         $lineNumber = $data['lineNumber'] ?? null;
         $unitTypeValue = $data['unitType'] ?? null;
         $totalExclVat = $data['totalExclVat'] ?? null;
@@ -43,7 +46,7 @@ final readonly class InvoiceLine
 
         $vatPercentageFloat = is_numeric($vatPercentage) ? (float) $vatPercentage : 0.0;
 
-        // Resolve VatType enum
+        // Resolve VatType enum (for backwards compatibility)
         $vatType = match (true) {
             $vatTypeValue instanceof VatType => $vatTypeValue,
             is_int($vatTypeValue) => VatType::tryFrom($vatTypeValue) ?? VatType::fromPercentageDomestic($vatPercentageFloat),
@@ -59,6 +62,13 @@ final readonly class InvoiceLine
             default => null,
         };
 
+        // Resolve vatTypeID (UUID string)
+        $resolvedVatTypeID = match (true) {
+            $vatTypeID instanceof VatTypeId => $vatTypeID->getValue(),
+            is_string($vatTypeID) && $vatTypeID !== '' => $vatTypeID,
+            default => null,
+        };
+
         return new self(
             description: is_string($description) ? $description : '',
             quantity: is_numeric($quantity) ? (float) $quantity : 0.0,
@@ -70,6 +80,7 @@ final readonly class InvoiceLine
             totalExclVat: is_numeric($totalExclVat) ? (float) $totalExclVat : null,
             totalDiscountExclVat: is_numeric($totalDiscountExclVat) ? (float) $totalDiscountExclVat : null,
             vatAmount: is_numeric($vatAmount) ? (float) $vatAmount : null,
+            vatTypeID: $resolvedVatTypeID,
         );
     }
 
@@ -86,12 +97,18 @@ final readonly class InvoiceLine
             'quantity' => round($this->quantity, 4),
             'unitType' => $this->unitType?->value ?? UnitType::UNIT->value,
             'itemExclVat' => round($this->unitPrice, 2),
-            'vatType' => $this->vatType->value,
             'vatPercentage' => round($this->vatPercentage, 2),
             'totalDiscountExclVat' => round($this->totalDiscountExclVat ?? 0, 2),
             'totalExclVat' => round($lineTotal, 2),
             'vatAmount' => round($vatAmount, 2),
         ];
+
+        // Use vatTypeID (UUID) if available, otherwise fall back to vatType (integer)
+        if ($this->vatTypeID !== null) {
+            $payload['vatTypeID'] = $this->vatTypeID;
+        } else {
+            $payload['vatType'] = $this->vatType->value;
+        }
 
         if ($this->lineNumber !== null) {
             $payload['lineNumber'] = (string) $this->lineNumber;
