@@ -114,7 +114,7 @@ final readonly class Delivery
         }
 
         // Always include address (empty object {} if no address)
-        $payload['address'] = $this->address?->toArray() ?? new \stdClass();
+        $payload['address'] = $this->address?->toArray() ?? new \stdClass;
 
         if ($this->identifierType !== null) {
             $payload['identifierType'] = $this->identifierType;
