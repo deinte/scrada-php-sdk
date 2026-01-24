@@ -6,6 +6,7 @@ namespace Deinte\ScradaSdk\Data\SalesInvoice;
 
 use Deinte\ScradaSdk\Data\Common\Attachment;
 use Deinte\ScradaSdk\Data\Common\Customer;
+use Deinte\ScradaSdk\Data\Common\Delivery;
 
 /**
  * Request data for creating a sales invoice.
@@ -37,12 +38,7 @@ final readonly class CreateSalesInvoiceData
         public ?string $purchaseOrderReference = null,
         public ?string $projectReference = null,
         public ?string $salesOrderReference = null,
-        public ?string $deliveryDate = null,
-        public ?string $deliveryStreet = null,
-        public ?string $deliveryStreetNumber = null,
-        public ?string $deliveryCity = null,
-        public ?string $deliveryZipCode = null,
-        public ?string $deliveryCountryCode = null,
+        public ?Delivery $delivery = null,
     ) {}
 
     /**
@@ -108,12 +104,16 @@ final readonly class CreateSalesInvoiceData
             purchaseOrderReference: isset($data['purchaseOrderReference']) && is_string($data['purchaseOrderReference']) ? $data['purchaseOrderReference'] : null,
             projectReference: isset($data['projectReference']) && is_string($data['projectReference']) ? $data['projectReference'] : null,
             salesOrderReference: isset($data['salesOrderReference']) && is_string($data['salesOrderReference']) ? $data['salesOrderReference'] : null,
-            deliveryDate: isset($data['deliveryDate']) && is_string($data['deliveryDate']) ? $data['deliveryDate'] : null,
-            deliveryStreet: isset($data['deliveryStreet']) && is_string($data['deliveryStreet']) ? $data['deliveryStreet'] : null,
-            deliveryStreetNumber: isset($data['deliveryStreetNumber']) && is_string($data['deliveryStreetNumber']) ? $data['deliveryStreetNumber'] : null,
-            deliveryCity: isset($data['deliveryCity']) && is_string($data['deliveryCity']) ? $data['deliveryCity'] : null,
-            deliveryZipCode: isset($data['deliveryZipCode']) && is_string($data['deliveryZipCode']) ? $data['deliveryZipCode'] : null,
-            deliveryCountryCode: isset($data['deliveryCountryCode']) && is_string($data['deliveryCountryCode']) ? $data['deliveryCountryCode'] : null,
+            delivery: isset($data['delivery']) && is_array($data['delivery'])
+                ? Delivery::fromArray($data['delivery'])
+                : Delivery::fromFlatFields(
+                    date: $data['deliveryDate'] ?? null,
+                    street: $data['deliveryStreet'] ?? null,
+                    streetNumber: $data['deliveryStreetNumber'] ?? null,
+                    city: $data['deliveryCity'] ?? null,
+                    zipCode: $data['deliveryZipCode'] ?? null,
+                    countryCode: $data['deliveryCountryCode'] ?? null,
+                ),
         );
     }
 
@@ -152,12 +152,7 @@ final readonly class CreateSalesInvoiceData
             purchaseOrderReference: $this->purchaseOrderReference,
             projectReference: $this->projectReference,
             salesOrderReference: $this->salesOrderReference,
-            deliveryDate: $this->deliveryDate,
-            deliveryStreet: $this->deliveryStreet,
-            deliveryStreetNumber: $this->deliveryStreetNumber,
-            deliveryCity: $this->deliveryCity,
-            deliveryZipCode: $this->deliveryZipCode,
-            deliveryCountryCode: $this->deliveryCountryCode,
+            delivery: $this->delivery,
         );
     }
 
@@ -233,29 +228,9 @@ final readonly class CreateSalesInvoiceData
             $payload['salesOrderReference'] = $this->salesOrderReference;
         }
 
-        // Add delivery information if provided (for Event invoices / Peppol e-invoicing)
-        if ($this->deliveryDate !== null) {
-            $payload['deliveryDate'] = $this->deliveryDate;
-        }
-
-        if ($this->deliveryStreet !== null) {
-            $payload['deliveryStreet'] = $this->deliveryStreet;
-        }
-
-        if ($this->deliveryStreetNumber !== null) {
-            $payload['deliveryStreetNumber'] = $this->deliveryStreetNumber;
-        }
-
-        if ($this->deliveryCity !== null) {
-            $payload['deliveryCity'] = $this->deliveryCity;
-        }
-
-        if ($this->deliveryZipCode !== null) {
-            $payload['deliveryZipCode'] = $this->deliveryZipCode;
-        }
-
-        if ($this->deliveryCountryCode !== null) {
-            $payload['deliveryCountryCode'] = $this->deliveryCountryCode;
+        // Add delivery information as nested object (for Event invoices / Peppol e-invoicing)
+        if ($this->delivery !== null && $this->delivery->hasDeliveryInfo()) {
+            $payload['delivery'] = $this->delivery->toArray();
         }
 
         return $payload;
