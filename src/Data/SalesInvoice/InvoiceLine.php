@@ -101,13 +101,12 @@ final readonly class InvoiceLine
             'totalDiscountExclVat' => round($this->totalDiscountExclVat ?? 0, 2),
             'totalExclVat' => round($lineTotal, 2),
             'vatAmount' => round($vatAmount, 2),
+            'vatType' => $this->vatType->value,
         ];
 
-        // Use vatTypeID (UUID) if available, otherwise fall back to vatType (integer)
+        // Add vatTypeID if available (Scrada needs both vatType and vatTypeID)
         if ($this->vatTypeID !== null) {
             $payload['vatTypeID'] = $this->vatTypeID;
-        } else {
-            $payload['vatType'] = $this->vatType->value;
         }
 
         if ($this->lineNumber !== null) {

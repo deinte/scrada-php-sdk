@@ -274,13 +274,12 @@ final readonly class CreateSalesInvoiceData
                 'totalExclVat' => round($total['totalExclVat'], 2),
                 'totalVat' => round($total['totalVat'], 2),
                 'totalInclVat' => round($total['totalInclVat'], 2),
+                'vatType' => $total['vatType'],
             ];
 
-            // Use vatTypeID (UUID) if available, otherwise fall back to vatType (integer)
+            // Add vatTypeID if available (Scrada needs both vatType and vatTypeID)
             if ($total['vatTypeID'] !== null) {
                 $result['vatTypeID'] = $total['vatTypeID'];
-            } else {
-                $result['vatType'] = $total['vatType'];
             }
 
             return $result;
