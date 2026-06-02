@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Deinte\ScradaSdk\Data\Common\Address;
 use Deinte\ScradaSdk\Data\Common\Customer;
 use Deinte\ScradaSdk\Exceptions\InvalidJsonResponseException;
+use Deinte\ScradaSdk\Exceptions\ScradaException;
 use Deinte\ScradaSdk\Requests\Peppol\LookupPartyRequest;
 use Deinte\ScradaSdk\Resources\PeppolResource;
 use Deinte\ScradaSdk\ScradaConnector;
@@ -225,7 +226,7 @@ it('includes raw body in ScradaException for 500 errors', function (): void {
     try {
         $resource->lookupParty($customer);
         test()->fail('Expected ScradaException');
-    } catch (\Deinte\ScradaSdk\Exceptions\ScradaException $e) {
+    } catch (ScradaException $e) {
         expect($e->getMessage())->toContain('HTTP 500')
             ->and($e->getResponseBody())->toContain('Internal Server Error');
     }
