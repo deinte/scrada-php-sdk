@@ -19,6 +19,8 @@ final readonly class InvoicePaymentMethod
         public ?float $totalPaid = null,
         public ?float $totalToPay = null,
         public ?string $paymentReference = null,
+        public ?string $iban = null,
+        public ?string $bic = null,
     ) {}
 
     /**
@@ -29,6 +31,8 @@ final readonly class InvoicePaymentMethod
         ?float $totalPaid = null,
         ?float $totalToPay = null,
         ?string $paymentReference = null,
+        ?string $iban = null,
+        ?string $bic = null,
     ): self {
         return new self(
             paymentType: $type,
@@ -36,6 +40,8 @@ final readonly class InvoicePaymentMethod
             totalPaid: $totalPaid,
             totalToPay: $totalToPay,
             paymentReference: $paymentReference,
+            iban: $iban,
+            bic: $bic,
         );
     }
 
@@ -54,6 +60,8 @@ final readonly class InvoicePaymentMethod
             totalPaid: isset($data['totalPaid']) && is_numeric($data['totalPaid']) ? (float) $data['totalPaid'] : null,
             totalToPay: isset($data['totalToPay']) && is_numeric($data['totalToPay']) ? (float) $data['totalToPay'] : null,
             paymentReference: isset($data['paymentReference']) && is_string($data['paymentReference']) ? $data['paymentReference'] : null,
+            iban: isset($data['iban']) && is_string($data['iban']) ? $data['iban'] : null,
+            bic: isset($data['bic']) && is_string($data['bic']) ? $data['bic'] : null,
         );
     }
 
@@ -77,6 +85,14 @@ final readonly class InvoicePaymentMethod
 
         if ($this->paymentReference !== null) {
             $payload['paymentReference'] = $this->paymentReference;
+        }
+
+        if ($this->iban !== null) {
+            $payload['iban'] = $this->iban;
+        }
+
+        if ($this->bic !== null) {
+            $payload['bic'] = $this->bic;
         }
 
         return $payload;

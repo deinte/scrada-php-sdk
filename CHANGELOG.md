@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.9 - 2026-06-02
+
+### Added
+- `InvoicePaymentMethod` now supports the seller bank account fields `iban` and `bic`. They are sent to Scrada (and onto the Peppol UBL `PayeeFinancialAccount`) when provided and omitted from the payload when null.
+
 ## 0.0.3 - 2025-12-18
 
 ### Changed
