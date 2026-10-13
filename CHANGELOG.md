@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.11 - 2026-10-13
+
+### Fixed
+- `PaymentType::BankTransfer` now sends Scrada code `2` (wire transfer) instead of `1`, which Scrada reads as "Undefined payment method". Scrada only puts `iban`/`bic` on the Peppol UBL `PayeeFinancialAccount` for a wire transfer, so invoices were sent without the seller bank account.
+- `InvoicePaymentMethod::fromArray()` falls back to `BankTransfer` when `paymentType` is missing instead of the unknown type.
+
+### Added
+- `PaymentType` covers every Scrada payment method type (`Unknown`, `BankCard`, `DirectDebit`, `Cash`, `CreditCard`, `OnlinePaymentProvider`, `Cheque`, `StandingAgreement`).
+
 ## 0.0.9 - 2026-06-02
 
 ### Added

@@ -50,9 +50,10 @@ final readonly class InvoicePaymentMethod
      */
     public static function fromArray(array $data): self
     {
-        $paymentTypeValue = $data['paymentType'] ?? 1;
-        $paymentTypeInt = is_int($paymentTypeValue) ? $paymentTypeValue : (is_numeric($paymentTypeValue) ? (int) $paymentTypeValue : 1);
-        $paymentType = PaymentType::tryFrom($paymentTypeInt) ?? PaymentType::BankTransfer;
+        $paymentTypeValue = $data['paymentType'] ?? null;
+        $paymentType = is_numeric($paymentTypeValue)
+            ? PaymentType::tryFrom((int) $paymentTypeValue) ?? PaymentType::BankTransfer
+            : PaymentType::BankTransfer;
 
         return new self(
             paymentType: $paymentType,
