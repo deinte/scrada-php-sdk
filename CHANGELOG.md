@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0 - 2026-10-21
+
+### Changed
+- **BREAKING**: Requires PHP 8.5 (8.3 and 8.4 dropped).
+- **BREAKING**: Requires Saloon `^4.5`. Saloon 3 is no longer supported; it is affected by GHSA advisories for insecure `AccessTokenAuthenticator` deserialization, base-URL override SSRF and fixture path traversal that are only fixed in Saloon 4.
+- Dev tooling moved to Pest 4, PHPUnit 12 and PHPStan 2.
+
+The public API (connector, resources, requests and DTOs) is unchanged since 0.0.11, so upgrading is a constraint bump: `composer require deinte/scrada-php-sdk:^1.0`.
+
 ## 0.0.11 - 2026-10-13
 
 ### Fixed

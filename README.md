@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/packagist/php-v/deinte/scrada-php-sdk)](https://packagist.org/packages/deinte/scrada-php-sdk)
 [![License](https://img.shields.io/packagist/l/deinte/scrada-php-sdk)](LICENSE.md)
 
-A PHP SDK for the [Scrada](https://www.scrada.be) accounting API with Peppol support, built on [Saloon v3](https://docs.saloon.dev).
+A PHP SDK for the [Scrada](https://www.scrada.be) accounting API with Peppol support, built on [Saloon v4](https://docs.saloon.dev).
 
 > **Note:** This package was co-authored with AI assistance. Not all API endpoints have been tested in production. Please test thoroughly before use.
 
@@ -16,6 +16,11 @@ A PHP SDK for the [Scrada](https://www.scrada.be) accounting API with Peppol sup
 - Daily receipts management
 - Typed DTOs for all payloads
 - PHPStan level 9
+
+## Requirements
+
+- PHP 8.5
+- Saloon 4
 
 ## Installation
 
