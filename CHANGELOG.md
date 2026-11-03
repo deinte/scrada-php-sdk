@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 - 2026-11-03
+
+### Added
+- `CreateSalesInvoiceData::$buyerReference`: sent to Scrada as `buyerReference`, which ends up in `<cbc:BuyerReference>` of the Peppol UBL invoice. Optional and left out of the payload when `null`.
+
 ## 1.0.0 - 2026-10-21
 
 ### Changed

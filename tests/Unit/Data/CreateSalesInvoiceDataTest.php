@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Deinte\ScradaSdk\Data\Common\Address;
+use Deinte\ScradaSdk\Data\Common\Attachment;
 use Deinte\ScradaSdk\Data\Common\Customer;
 use Deinte\ScradaSdk\Data\SalesInvoice\CreateSalesInvoiceData;
 use Deinte\ScradaSdk\Data\SalesInvoice\InvoiceLine;
@@ -84,4 +85,43 @@ it('converts request data to array payload', function (): void {
         ->and($payload['alreadySendToCustomer'])->toBeTrue()
         ->and($payload['lines'])->toHaveCount(1)
         ->and($payload['customer'])->toBeArray();
+});
+
+it('sends the buyer reference next to the order references', function (): void {
+    $requestData = CreateSalesInvoiceData::fromArray([
+        'bookYear' => '2025',
+        'journal' => 'SALES',
+        'number' => '2025-001',
+        'invoiceDate' => '2025-06-03',
+        'invoiceExpiryDate' => '2025-06-30',
+        'customer' => ['code' => 'CUST01', 'name' => 'Customer'],
+        'lines' => [
+            ['description' => 'Service', 'quantity' => 1, 'unitPrice' => 100.0, 'vatPerc' => 21.0],
+        ],
+        'buyerReference' => 'PO-4512',
+        'purchaseOrderReference' => 'PO-4512',
+    ]);
+
+    $payload = $requestData->toArray();
+
+    expect($requestData->buyerReference)->toBe('PO-4512')
+        ->and($payload['buyerReference'])->toBe('PO-4512')
+        ->and($payload['purchaseOrderReference'])->toBe('PO-4512');
+});
+
+it('keeps the buyer reference when an attachment is added', function (): void {
+    $requestData = CreateSalesInvoiceData::fromArray([
+        'customer' => ['code' => 'CUST01', 'name' => 'Customer'],
+        'buyerReference' => 'PO-4512',
+    ])->withAttachment(Attachment::pdf('invoice.pdf', 'JVBERi0='));
+
+    expect($requestData->buyerReference)->toBe('PO-4512');
+});
+
+it('leaves the buyer reference out of the payload when it is missing', function (): void {
+    $payload = CreateSalesInvoiceData::fromArray([
+        'customer' => ['code' => 'CUST01', 'name' => 'Customer'],
+    ])->toArray();
+
+    expect($payload)->not->toHaveKey('buyerReference');
 });
