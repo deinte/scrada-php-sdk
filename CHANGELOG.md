@@ -1,13 +1,21 @@
 # Changelog
 
+## v1.1.0 - 2026-11-03
+
+### Added
+
+- `CreateSalesInvoiceData::$buyerReference`: sent to Scrada as `buyerReference` (Peppol BT-10, `cbc:BuyerReference`). Optional, left out of the payload when `null`.
+
 ## 1.1.0 - 2026-11-03
 
 ### Added
+
 - `CreateSalesInvoiceData::$buyerReference`: sent to Scrada as `buyerReference`, which ends up in `<cbc:BuyerReference>` of the Peppol UBL invoice. Optional and left out of the payload when `null`.
 
 ## 1.0.0 - 2026-10-21
 
 ### Changed
+
 - **BREAKING**: Requires PHP 8.5 (8.3 and 8.4 dropped).
 - **BREAKING**: Requires Saloon `^4.5`. Saloon 3 is no longer supported; it is affected by GHSA advisories for insecure `AccessTokenAuthenticator` deserialization, base-URL override SSRF and fixture path traversal that are only fixed in Saloon 4.
 - Dev tooling moved to Pest 4, PHPUnit 12 and PHPStan 2.
@@ -17,31 +25,38 @@ The public API (connector, resources, requests and DTOs) is unchanged since 0.0.
 ## 0.0.11 - 2026-10-13
 
 ### Fixed
+
 - `PaymentType::BankTransfer` now sends Scrada code `2` (wire transfer) instead of `1`, which Scrada reads as "Undefined payment method". Scrada only puts `iban`/`bic` on the Peppol UBL `PayeeFinancialAccount` for a wire transfer, so invoices were sent without the seller bank account.
 - `InvoicePaymentMethod::fromArray()` falls back to `BankTransfer` when `paymentType` is missing instead of the unknown type.
 
 ### Added
+
 - `PaymentType` covers every Scrada payment method type (`Unknown`, `BankCard`, `DirectDebit`, `Cash`, `CreditCard`, `OnlinePaymentProvider`, `Cheque`, `StandingAgreement`).
 
 ## 0.0.9 - 2026-06-02
 
 ### Added
+
 - `InvoicePaymentMethod` now supports the seller bank account fields `iban` and `bic`. They are sent to Scrada (and onto the Peppol UBL `PayeeFinancialAccount`) when provided and omitted from the payload when null.
 
 ## 0.0.3 - 2025-12-18
 
 ### Changed
+
 - **BREAKING**: `Customer` constructor signature changed:
   - Required: `name`, `address`
   - Optional (nullable): `peppolID`, `code`, `accountingCode`, `languageCode`, `phone`, `email`, `invoiceEmail`, `contact`, `taxNumberType`, `taxNumber`, `vatNumber`, `glnNumber`, `extraIdentifiers`
   - Previous required fields (`code`, `email`, `vatNumber`) are now optional
+  
 
 ### Added
+
 - `TaxNumberType` enum for tax number identification:
   - `ENTERPRISE_NUMBER_BE` (1) - Belgian enterprise number (KBO)
   - `KVK_NL` (2) - Dutch Chamber of Commerce number
   - `SIRENE_FR` (3) - French SIRENE number
   - Helper method: `countryCode()`
+  
 - `ExtraIdentifier` DTO for customer extra identifiers (scheme + value pairs)
 - `Customer` fields for complete Peppol party lookup support:
   - `peppolID` - Peppol network identifier (e.g., "0208:0793904121")
@@ -53,16 +68,20 @@ The public API (connector, resources, requests and DTOs) is unchanged since 0.0.
   - `taxNumber` - Tax number according to taxNumberType
   - `glnNumber` - Global Location Number
   - `extraIdentifiers` - Array of `ExtraIdentifier` objects
+  
 - `Address` fields:
   - `streetBox` - Apartment/unit/box number
   - `countrySubentity` - State/province/region
+  
 
 ## 0.0.2 - 2025-12-18
 
 ### Changed
+
 - **BREAKING**: Reorganized Data namespace into sub-namespaces for better organization:
   - `Deinte\ScradaSdk\Data\Common` - Shared DTOs (Address, Attachment, Customer)
   - `Deinte\ScradaSdk\Data\SalesInvoice` - Invoice DTOs (CreateSalesInvoiceData, CreateSalesInvoiceResponse, InvoiceLine, InvoicePaymentMethod, SalesInvoice, SendStatusResponse)
+  
 - **BREAKING**: `SalesInvoiceResource::create()` now only accepts `CreateSalesInvoiceData` (removed `array` and `SalesInvoice` input types)
 - **BREAKING**: `PeppolResource::lookupParty()` now only accepts `Customer` (removed `array` input type)
 - **BREAKING**: `InvoiceLine::$vatType` is now a `VatType` enum instead of `int`
@@ -72,16 +91,20 @@ The public API (connector, resources, requests and DTOs) is unchanged since 0.0.
   - Added email-related fields (receiverEmailAddress, receiverEmailTime, receiverEmailStatus)
   - Added `status` as `SendStatus` enum and `sendMethod` as `SendMethod` enum
   - Added helper methods: `isSuccess()`, `isError()`, `isPending()`, `wasSentViaPeppol()`, `wasSentViaEmail()`
+  
 - DTOs now use proper enums instead of magic integers for type safety
 
 ### Added
+
 - `SendStatus` enum with all possible status values:
   - Peppol/Full subscription: Created, Processed, Retry, Canceled, Error, Error already sent, Error not on Peppol
   - Full subscription only: Blocked - send by email, Not on Peppol - send by email, Error - send by email, Blocked, None
   - Helper methods: `isSuccess()`, `isError()`, `isPending()`
+  
 - `SendMethod` enum for invoice sending methods:
   - Peppol, Email, Peppol and email, None
   - Helper methods: `usesPeppol()`, `usesEmail()`
+  
 - `FileType` enum for attachments (PDF, IMAGE, XML)
 - `UnitType` enum for invoice line units (UNIT, PIECE, HOUR, KILOGRAM, etc. - 20 unit types)
 - `ItemIdentificationType` enum for standard item identifiers (GLN, GTIN, GS1, etc.)
@@ -91,6 +114,7 @@ The public API (connector, resources, requests and DTOs) is unchanged since 0.0.
 - `InvoiceLine::$unitType` - optional unit type field (nullable, defaults to UNIT)
 
 ### Fixed
+
 - Improved type safety by enforcing DTO-only inputs on resource methods
 - Better PHPStan compliance with proper enum types
 - `SendStatusResponse` now includes complete API response (was missing most fields)
@@ -98,6 +122,7 @@ The public API (connector, resources, requests and DTOs) is unchanged since 0.0.
 ## 0.0.1 - 2025-12-02
 
 ### Changed
+
 - **BREAKING**: `PeppolLookupResult` now uses Scrada API field names directly
   - `canReceiveInvoices` property → `supportInvoice` property
   - `canReceiveCreditNotes` property → `supportCreditInvoice` property
@@ -105,8 +130,10 @@ The public API (connector, resources, requests and DTOs) is unchanged since 0.0.
   - Added `registered`, `supportSelfBillingInvoice`, `supportSelfBillingCreditInvoice` properties
   - Added `canReceiveInvoices()` method (checks `registered && supportInvoice`)
   - Added `canReceiveCreditInvoices()` method (checks `registered && supportCreditInvoice`)
+  
 
 ### Fixed
+
 - Fixed PEPPOL lookup not recognizing registered companies due to incorrect field mapping
 
 ## 0.1.0 - 2025-11-13
